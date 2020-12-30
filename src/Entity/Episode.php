@@ -4,22 +4,20 @@ namespace App\Entity;
 
 use App\Repository\EpisodeRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Representation of a downloaded episode.
  * @ORM\Entity(repositoryClass=EpisodeRepository::class)
- * @UniqueEntity({"show", "seasonNumber", "episodeNumber", "quality"})
  */
-class Episode {
+class Episode implements EpisodeInterface {
 	/**
 	 * The ID.
 	 * @ORM\Id
 	 * @ORM\GeneratedValue
 	 * @ORM\Column(type="integer")
 	 */
-	protected int $id;
+	private int $id;
 
 	/**
 	 * The {@see Show} this episode belongs to.
@@ -27,7 +25,7 @@ class Episode {
 	 * @ORM\ManyToOne(targetEntity=Show::class, inversedBy="episodes")
 	 * @ORM\JoinColumn(nullable=false)
 	 */
-	protected Show $show;
+	private Show $show;
 
 	/**
 	 * The URL to download this episode.
@@ -35,7 +33,7 @@ class Episode {
 	 * @Assert\Url
 	 * @ORM\Column(type="string", length=255)
 	 */
-	protected string $downloadLink;
+	private string $downloadLink;
 
 	/**
 	 * The season number.
@@ -43,7 +41,7 @@ class Episode {
 	 * @Assert\Positive
 	 * @ORM\Column(type="integer")
 	 */
-	protected int $seasonNumber;
+	private int $seasonNumber;
 
 	/**
 	 * The episode number.
@@ -51,7 +49,7 @@ class Episode {
 	 * @Assert\Positive
 	 * @ORM\Column(type="integer")
 	 */
-	protected int $episodeNumber;
+	private int $episodeNumber;
 
 	/**
 	 * The quality.
@@ -59,13 +57,13 @@ class Episode {
 	 * @Assert\Positive
 	 * @ORM\Column(type="integer")
 	 */
-	protected int $quality;
+	private int $quality;
 
 	/**
 	 * Datetime of creation.
 	 * @ORM\Column(type="datetime")
 	 */
-	protected \DateTimeInterface $createdAt;
+	private \DateTimeInterface $createdAt;
 
 	/**
 	 * Create an episode.
@@ -97,8 +95,7 @@ class Episode {
 	}
 
 	/**
-	 * Get the {@see Show} this episode belongs to.
-	 * @return Show
+	 * @inheritDoc
 	 */
 	public function getShow(): Show {
 		return $this->show;
@@ -116,8 +113,7 @@ class Episode {
 	}
 
 	/**
-	 * Get the URL to download this episode.
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function getDownloadLink(): string {
 		return $this->downloadLink;
@@ -135,8 +131,7 @@ class Episode {
 	}
 
 	/**
-	 * Get the season number.
-	 * @return int
+	 * @inheritDoc
 	 */
 	public function getSeasonNumber(): int {
 		return $this->seasonNumber;
@@ -154,8 +149,7 @@ class Episode {
 	}
 
 	/**
-	 * Get the episode number.
-	 * @return int
+	 * @inheritDoc
 	 */
 	public function getEpisodeNumber(): int {
 		return $this->episodeNumber;
@@ -173,8 +167,7 @@ class Episode {
 	}
 
 	/**
-	 * Get the quality.
-	 * @return int
+	 * @inheritDoc
 	 */
 	public function getQuality(): int {
 		return $this->quality;

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Episode;
+use App\Entity\EpisodeInterface;
 
 /**
  * Repository to manage {@see Episode}.
@@ -21,10 +22,10 @@ class EpisodeRepository extends AbstractRepository {
 
 	/**
 	 * Find episodes which are similar to the given episode.
-	 * @param Episode $episode
+	 * @param EpisodeInterface $episode
 	 * @return Episode[]
 	 */
-	public function findSimilar(Episode $episode): array {
+	public function findSimilar(EpisodeInterface $episode): array {
 		return $this->findBy([
 			'show' => $episode->getShow(),
 			'seasonNumber' => $episode->getSeasonNumber(),

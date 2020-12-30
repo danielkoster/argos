@@ -33,6 +33,10 @@ services:
         arguments:
             $feedUrl: '%env(FEED_URL)%'
 
+    App\MessageHandler\DownloadEpisodeMessageHandler:
+        arguments:
+            $preferredUploaders: '%env(csv:PREFERRED_UPLOADERS)%'
+
     Transmission\Transmission:
         arguments:
             $host: '%env(key:host:url:TRANSMISSION_DSN)%'

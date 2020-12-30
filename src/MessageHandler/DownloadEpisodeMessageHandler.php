@@ -33,25 +33,35 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	private Transmission $transmission;
 
 	/**
+	 * Names of preferred uploaders.
+	 * @var string[]
+	 */
+	private array $preferredUploaders;
+
+	/**
 	 * Create a message handler.
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
 	 * @param EpisodeRepository $episodeRepository
 	 * @param Transmission $transmission
+	 * @param string[] $preferredUploaders
 	 */
 	public function __construct(
 		EpisodeCandidateRepository $episodeCandidateRepository,
 		EpisodeRepository $episodeRepository,
-		Transmission $transmission
+		Transmission $transmission,
+		array $preferredUploaders
 	) {
 		$this->episodeCandidateRepository = $episodeCandidateRepository;
 		$this->episodeRepository = $episodeRepository;
 		$this->transmission = $transmission;
+		$this->preferredUploaders = $preferredUploaders;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function __invoke(DownloadEpisodeMessage $message) {
+		// The candidate is already deleted.
 		$episode = $this->episodeCandidateRepository->find($message->getEpisodeId());
 		if (null === $episode) {
 			return;
@@ -59,7 +69,9 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 
 		// The episode has been downloaded already.
 		$downloadedEpisode = $this->episodeRepository->findSimilar($episode);
-		if (null !== $downloadedEpisode) {
+		if (!empty($downloadedEpisode)) {
+			$this->episodeCandidateRepository->delete($episode);
+
 			return;
 		}
 
@@ -68,6 +80,7 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 
 		// Sort the episodes, best first.
 		usort($episodes, [$this, 'compareEpisodes']);
+		$episodes = array_reverse($episodes);
 
 		// Download the first episode.
 		$this->downloadEpisode(reset($episodes));
@@ -75,7 +88,7 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		// Delete all episodes.
 		array_walk(
 			$episodes,
-			fn(EpisodeCandidate $candidate): void => $this->episodeCandidateRepository->delete($candidate)
+			fn(EpisodeCandidate $candidate) => $this->episodeCandidateRepository->delete($candidate)
 		);
 	}
 
@@ -86,7 +99,27 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	 * @return int
 	 */
 	private function compareEpisodes(EpisodeCandidate $left, EpisodeCandidate $right): int {
-		return $left->getQuality() <=> $right->getQuality();
+		// Better quality always comes first.
+		if ($left->getQuality() !== $right->getQuality()) {
+			return $left->getQuality() <=> $right->getQuality();
+		}
+
+		return $this->hasPreferredUploader($left) <=> $this->hasPreferredUploader($right);
+	}
+
+	/**
+	 * Whether an episode is from a preferred uploader.
+	 * @param EpisodeCandidate $candidate
+	 * @return bool
+	 */
+	private function hasPreferredUploader(EpisodeCandidate $candidate): bool {
+		foreach ($this->preferredUploaders as $uploader) {
+			if (stripos($candidate->getDownloadLink(), $uploader) !== false) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -106,7 +139,5 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 			->setQuality($episodeCandidate->getQuality());
 
 		$this->episodeRepository->save($episode);
-
-		return;
 	}
 }

@@ -2,19 +2,26 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ShowRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Representation of a TV show.
+ * @ApiResource(
+ *     normalizationContext={"groups"={"user:read"}},
+ *     denormalizationContext={"groups"={"user:write"}},
+ * )
  * @ORM\Entity(repositoryClass=ShowRepository::class)
  */
 class Show {
 	/**
 	 * The ID.
+	 * @Groups({"user:read"})
 	 * @ORM\Id
 	 * @ORM\GeneratedValue
 	 * @ORM\Column(type="integer")
@@ -24,6 +31,7 @@ class Show {
 	/**
 	 * The name.
 	 * @Assert\NotBlank
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private string $name;
@@ -32,6 +40,7 @@ class Show {
 	 * Season to start following.
 	 * @Assert\NotBlank
 	 * @Assert\Positive
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="integer")
 	 */
 	private int $followFromSeason;
@@ -40,6 +49,7 @@ class Show {
 	 * Episode to start following.
 	 * @Assert\NotBlank
 	 * @Assert\Positive
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="integer")
 	 */
 	private int $followFromEpisode;
@@ -48,6 +58,7 @@ class Show {
 	 * The minimum quality to download.
 	 * @Assert\NotBlank
 	 * @Assert\PositiveOrZero
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="integer")
 	 */
 	private int $minimumQuality;
@@ -56,6 +67,7 @@ class Show {
 	 * Minutes to wait for a high quality episode.
 	 * @Assert\NotBlank
 	 * @Assert\PositiveOrZero
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="integer")
 	 */
 	private int $highQualityWaitingTime;
@@ -63,14 +75,22 @@ class Show {
 	/**
 	 * Episodes belonging to this show.
 	 * @ORM\OneToMany(targetEntity=Episode::class, mappedBy="show", orphanRemoval=true)
+	 * @Groups({"user:read"})
 	 */
 	private Collection $episodes;
+
+	/**
+	 * Episode candidates belonging to this show.
+	 * @ORM\OneToMany(targetEntity=EpisodeCandidate::class, mappedBy="show", orphanRemoval=true)
+	 */
+	private Collection $episodeCandidates;
 
 	/**
 	 * Create a show.
 	 */
 	public function __construct() {
 		$this->episodes = new ArrayCollection();
+		$this->episodeCandidates = new ArrayCollection();
 	}
 
 	/**
@@ -185,12 +205,31 @@ class Show {
 	}
 
 	/**
-	 * Remove an {@see Episode} from this show.
+	 * Remove an episode from this show.
 	 * @param Episode $episode
 	 * @return $this
 	 */
 	public function removeEpisode(Episode $episode): self {
 		$this->episodes->removeElement($episode);
+
+		return $this;
+	}
+
+	/**
+	 * Get a list of episodes beloning to this show.
+	 * @return Collection|EpisodeCandidate[]
+	 */
+	public function getEpisodeCandidates(): Collection {
+		return $this->episodeCandidates;
+	}
+
+	/**
+	 * Remove an episode candidate from this show.
+	 * @param EpisodeCandidate $episodeCandidate
+	 * @return $this
+	 */
+	public function removeEpisodeCandidate(EpisodeCandidate $episodeCandidate): self {
+		$this->episodeCandidates->removeElement($episodeCandidate);
 
 		return $this;
 	}

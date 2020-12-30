@@ -3,10 +3,11 @@
 namespace App\MessageHandler;
 
 use App\Client\IpTorrentsClient;
-use App\Entity\Episode;
+use App\Entity\EpisodeInterface;
 use App\Message\DownloadEpisodeMessage;
 use App\Message\ParseFeedMessage;
 use App\Repository\EpisodeCandidateRepository;
+use App\Repository\EpisodeRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -23,10 +24,16 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	private IpTorrentsClient $client;
 
 	/**
-	 * The episode episodeCandidateRepository.
+	 * The episode candidate repository.
 	 * @var EpisodeCandidateRepository
 	 */
 	private EpisodeCandidateRepository $episodeCandidateRepository;
+
+	/**
+	 * The episode repository.
+	 * @var EpisodeRepository
+	 */
+	private EpisodeRepository $episodeRepository;
 
 	/**
 	 * PSR compliant logger.
@@ -44,17 +51,20 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	 * Create a message handler.
 	 * @param IpTorrentsClient $client
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
+	 * @param EpisodeRepository $episodeRepository
 	 * @param LoggerInterface $logger
 	 * @param MessageBusInterface $bus
 	 */
 	public function __construct(
 		IpTorrentsClient $client,
 		EpisodeCandidateRepository $episodeCandidateRepository,
+		EpisodeRepository $episodeRepository,
 		LoggerInterface $logger,
 		MessageBusInterface $bus
 	) {
 		$this->client = $client;
 		$this->episodeCandidateRepository = $episodeCandidateRepository;
+		$this->episodeRepository = $episodeRepository;
 		$this->logger = $logger;
 		$this->bus = $bus;
 	}
@@ -78,10 +88,10 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 
 	/**
 	 * Determine if an episode should be filtered.
-	 * @param Episode $episode
+	 * @param EpisodeInterface $episode
 	 * @return bool
 	 */
-	private function filterEpisodes(Episode $episode): bool {
+	private function filterEpisodes(EpisodeInterface $episode): bool {
 		$show = $episode->getShow();
 
 		// Filter if the quality is too low.
@@ -107,19 +117,35 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 			return false;
 		}
 
+		// Filter if this candidate has been stored already.
+		if ($this->isEpisodeCandidateStored($episode)) {
+			return false;
+		}
+
 		return true;
 	}
 
 	/**
 	 * Check if a episode has been downloaded already.
-	 * @param Episode $episode
+	 * @param EpisodeInterface $episode
 	 * @return bool
 	 */
-	private function isEpisodeDownloaded(Episode $episode): bool {
-		return (bool) $this->episodeCandidateRepository->findBy([
+	private function isEpisodeDownloaded(EpisodeInterface $episode): bool {
+		return (bool) $this->episodeRepository->findBy([
 			'show' => $episode->getShow(),
 			'seasonNumber' => $episode->getSeasonNumber(),
 			'episodeNumber' => $episode->getEpisodeNumber(),
+		]);
+	}
+
+	/**
+	 * Check if an episode candidate has been stored already.
+	 * @param EpisodeInterface $episode
+	 * @return bool
+	 */
+	private function isEpisodeCandidateStored(EpisodeInterface $episode): bool {
+		return (bool) $this->episodeCandidateRepository->findBy([
+			'downloadLink' => $episode->getDownloadLink(),
 		]);
 	}
 }

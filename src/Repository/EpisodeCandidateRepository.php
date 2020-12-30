@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Episode;
 use App\Entity\EpisodeCandidate;
+use App\Entity\EpisodeInterface;
 
 /**
  * Repository to manage {@see EpisodeCandidate}.
@@ -11,13 +11,25 @@ use App\Entity\EpisodeCandidate;
  * @method EpisodeCandidate|null findOneBy(array $criteria, array $orderBy = null)
  * @method EpisodeCandidate[]    findAll()
  * @method EpisodeCandidate[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- * @method EpisodeCandidate[]   findSimilar(Episode $episode)
  */
-class EpisodeCandidateRepository extends EpisodeRepository {
+class EpisodeCandidateRepository extends AbstractRepository {
 	/**
 	 * @inheritDoc
 	 */
 	protected static function getEntityClass(): string {
 		return EpisodeCandidate::class;
+	}
+
+	/**
+	 * Find episodes which are similar to the given episode.
+	 * @param EpisodeInterface $episode
+	 * @return EpisodeCandidate[]
+	 */
+	public function findSimilar(EpisodeInterface $episode): array {
+		return $this->findBy([
+			'show' => $episode->getShow(),
+			'seasonNumber' => $episode->getSeasonNumber(),
+			'episodeNumber' => $episode->getEpisodeNumber(),
+		]);
 	}
 }

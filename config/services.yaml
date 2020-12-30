@@ -29,3 +29,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Client\IpTorrentsClient:
+        arguments:
+            $feedUrl: '%env(FEED_URL)%'
+
+    Transmission\Transmission:
+        arguments:
+            $host: '%env(key:host:url:TRANSMISSION_DSN)%'
+            $port: '%env(key:port:url:TRANSMISSION_DSN)%'
+            $path: '%env(key:path:url:TRANSMISSION_DSN)%'

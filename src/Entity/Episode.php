@@ -4,10 +4,13 @@ namespace App\Entity;
 
 use App\Repository\EpisodeRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Representation of an episode.
+ * Representation of a downloaded episode.
  * @ORM\Entity(repositoryClass=EpisodeRepository::class)
+ * @UniqueEntity({"show", "seasonNumber", "episodeNumber", "quality"})
  */
 class Episode {
 	/**
@@ -16,56 +19,73 @@ class Episode {
 	 * @ORM\GeneratedValue
 	 * @ORM\Column(type="integer")
 	 */
-	private int $id;
+	protected int $id;
 
 	/**
 	 * The {@see Show} this episode belongs to.
+	 * @Assert\NotBlank
 	 * @ORM\ManyToOne(targetEntity=Show::class, inversedBy="episodes")
 	 * @ORM\JoinColumn(nullable=false)
 	 */
-	private Show $show;
+	protected Show $show;
 
 	/**
 	 * The URL to download this episode.
+	 * @Assert\NotBlank
+	 * @Assert\Url
 	 * @ORM\Column(type="string", length=255)
 	 */
-	private string $downloadLink;
+	protected string $downloadLink;
 
 	/**
 	 * The season number.
+	 * @Assert\NotBlank
+	 * @Assert\Positive
 	 * @ORM\Column(type="integer")
 	 */
-	private int $seasonNumber;
+	protected int $seasonNumber;
 
 	/**
 	 * The episode number.
+	 * @Assert\NotBlank
+	 * @Assert\Positive
 	 * @ORM\Column(type="integer")
 	 */
-	private int $episodeNumber;
+	protected int $episodeNumber;
 
 	/**
 	 * The quality.
+	 * @Assert\NotBlank
+	 * @Assert\Positive
 	 * @ORM\Column(type="integer")
 	 */
-	private int $quality;
-
-	/**
-	 * Whether this episode is downloaded.
-	 * @ORM\Column(type="boolean")
-	 */
-	private bool $isDownloaded;
+	protected int $quality;
 
 	/**
 	 * Datetime of creation.
 	 * @ORM\Column(type="datetime")
 	 */
-	private \DateTimeInterface $createdAt;
+	protected \DateTimeInterface $createdAt;
 
 	/**
 	 * Create an episode.
 	 */
 	public function __construct() {
 		$this->setCreatedAt(new \DateTime());
+	}
+
+	/**
+	 * Represent this entity as a string.
+	 * @return string
+	 */
+	public function __toString(): string {
+		return sprintf(
+			'%s - S%d - E%d - Q%d',
+			$this->getShow()->getName(),
+			$this->getSeasonNumber(),
+			$this->getEpisodeNumber(),
+			$this->getQuality()
+		);
 	}
 
 	/**
@@ -167,25 +187,6 @@ class Episode {
 	 */
 	public function setQuality(int $quality): self {
 		$this->quality = $quality;
-
-		return $this;
-	}
-
-	/**
-	 * Get whether this episode is downloaded.
-	 * @return bool
-	 */
-	public function getIsDownloaded(): ?bool {
-		return $this->isDownloaded;
-	}
-
-	/**
-	 * Set whether this episode is downloaded.
-	 * @param bool $isDownloaded
-	 * @return $this
-	 */
-	public function setIsDownloaded(bool $isDownloaded): self {
-		$this->isDownloaded = $isDownloaded;
 
 		return $this;
 	}

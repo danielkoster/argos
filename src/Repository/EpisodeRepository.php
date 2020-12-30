@@ -18,4 +18,17 @@ class EpisodeRepository extends AbstractRepository {
 	protected static function getEntityClass(): string {
 		return Episode::class;
 	}
+
+	/**
+	 * Find episodes which are similar to the given episode.
+	 * @param Episode $episode
+	 * @return Episode[]
+	 */
+	public function findSimilar(Episode $episode): array {
+		return $this->findBy([
+			'show' => $episode->getShow(),
+			'seasonNumber' => $episode->getSeasonNumber(),
+			'episodeNumber' => $episode->getEpisodeNumber(),
+		]);
+	}
 }

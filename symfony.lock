@@ -137,6 +137,27 @@
     "nikic/php-parser": {
         "version": "v4.10.4"
     },
+    "nyholm/psr7": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "7c0a9352a57376f04f5444e74565102c3a23d0c7"
+        },
+        "files": [
+            "config/packages/nyholm_psr7.yaml"
+        ]
+    },
+    "php-http/httplug": {
+        "version": "2.2.0"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
+    },
+    "php-http/promise": {
+        "version": "1.1.0"
+    },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
@@ -154,6 +175,15 @@
     },
     "psr/event-dispatcher": {
         "version": "1.0.0"
+    },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
+        "version": "1.0.1"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
     },
     "psr/link": {
         "version": "1.0.0"
@@ -295,6 +325,21 @@
             "config/packages/messenger.yaml"
         ]
     },
+    "symfony/notifier": {
+        "version": "5.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "5.0",
+            "ref": "c31585e252b32fe0e1f30b1f256af553f4a06eb9"
+        },
+        "files": [
+            "config/packages/notifier.yaml"
+        ]
+    },
+    "symfony/options-resolver": {
+        "version": "v5.2.1"
+    },
     "symfony/orm-pack": {
         "version": "v2.1.0"
     },
@@ -392,6 +437,15 @@
     },
     "symfony/string": {
         "version": "v5.2.1"
+    },
+    "symfony/telegram-notifier": {
+        "version": "5.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "5.0",
+            "ref": "5cf5c19e8fdcbf922de680cdf8d65fa7d77758ae"
+        }
     },
     "symfony/test-pack": {
         "version": "v1.0.7"

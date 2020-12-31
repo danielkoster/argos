@@ -14,7 +14,6 @@
         "doctrine/doctrine-bundle": "^2.2",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.8",
-        "kriswallsmith/buzz": "^0.9.0",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "symfony/asset": "5.2.*",
@@ -30,10 +29,11 @@
         "symfony/proxy-manager-bridge": "5.2.*",
         "symfony/security-bundle": "5.2.*",
         "symfony/serializer": "5.2.*",
+        "symfony/telegram-notifier": "5.2.*",
         "symfony/twig-bundle": "5.2.*",
         "symfony/validator": "5.2.*",
         "symfony/yaml": "5.2.*",
-        "transmission-php/transmission-php": "^1.0"
+        "transmission-php/transmission-php": "^2.0"
     },
     "require-dev": {
         "symfony/browser-kit": "^5.2",

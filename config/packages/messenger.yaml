@@ -12,3 +12,4 @@ framework:
         routing:
             App\Message\DownloadEpisodeMessage: async
             App\Message\ParseFeedMessage: async
+            '*': async

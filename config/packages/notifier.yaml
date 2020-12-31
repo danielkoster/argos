@@ -1,0 +1,10 @@
+framework:
+    notifier:
+        chatter_transports:
+            telegram: '%env(TELEGRAM_DSN)%'
+        channel_policy:
+            # use chat/slack, chat/telegram, sms/twilio or sms/nexmo
+            urgent: ['chat/telegram']
+            high: ['chat/telegram']
+            medium: ['chat/telegram']
+            low: ['chat/telegram']

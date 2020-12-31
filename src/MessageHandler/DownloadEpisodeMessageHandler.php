@@ -2,13 +2,12 @@
 
 namespace App\MessageHandler;
 
-use App\Entity\Episode;
 use App\Entity\EpisodeCandidate;
 use App\Message\DownloadEpisodeMessage;
 use App\Repository\EpisodeCandidateRepository;
 use App\Repository\EpisodeRepository;
+use App\Service\DownloadService;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Transmission\Transmission;
 
 /**
  * Downloads an episode.
@@ -27,10 +26,10 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	private EpisodeRepository $episodeRepository;
 
 	/**
-	 * Transmission client.
-	 * @var Transmission
+	 * The download service.
+	 * @var DownloadService
 	 */
-	private Transmission $transmission;
+	private DownloadService $downloadService;
 
 	/**
 	 * Names of preferred uploaders.
@@ -42,19 +41,19 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	 * Create a message handler.
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
 	 * @param EpisodeRepository $episodeRepository
-	 * @param Transmission $transmission
+	 * @param DownloadService $downloadService
 	 * @param string[] $preferredUploaders
 	 */
 	public function __construct(
 		EpisodeCandidateRepository $episodeCandidateRepository,
 		EpisodeRepository $episodeRepository,
-		Transmission $transmission,
+		DownloadService $downloadService,
 		array $preferredUploaders
 	) {
 		$this->episodeCandidateRepository = $episodeCandidateRepository;
 		$this->episodeRepository = $episodeRepository;
-		$this->transmission = $transmission;
 		$this->preferredUploaders = $preferredUploaders;
+		$this->downloadService = $downloadService;
 	}
 
 	/**
@@ -83,7 +82,7 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		$episodes = array_reverse($episodes);
 
 		// Download the first episode.
-		$this->downloadEpisode(reset($episodes));
+		$this->downloadService->downloadEpisodeCandidate(reset($episodes));
 
 		// Delete all episodes.
 		array_walk(
@@ -120,24 +119,5 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Download an episode.
-	 * @param EpisodeCandidate $episodeCandidate
-	 */
-	private function downloadEpisode(EpisodeCandidate $episodeCandidate): void {
-		// Add torrent to client.
-		//$this->transmission->add();
-
-		// Store the episode.
-		$episode = (new Episode())
-			->setShow($episodeCandidate->getShow())
-			->setDownloadLink($episodeCandidate->getDownloadLink())
-			->setSeasonNumber($episodeCandidate->getSeasonNumber())
-			->setEpisodeNumber($episodeCandidate->getEpisodeNumber())
-			->setQuality($episodeCandidate->getQuality());
-
-		$this->episodeRepository->save($episode);
 	}
 }

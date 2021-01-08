@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\Episode;
 use App\Entity\EpisodeCandidate;
-use App\Entity\EpisodeInterface;
 use App\Repository\EpisodeRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -71,51 +70,26 @@ class DownloadService {
 	 * @param EpisodeCandidate $episodeCandidate
 	 */
 	public function downloadEpisodeCandidate(EpisodeCandidate $episodeCandidate): void {
-		// Add torrent to client.
-		$this->downloadTorrentToPath(
-			$episodeCandidate->getDownloadLink(),
-			$this->generatePath($episodeCandidate)
+		// Generate a Plex-accepted path to download the torrent to.
+		$downloadPath = sprintf(
+			'%s/tv-shows/%s/Season %s/',
+			rtrim($this->downloadPath, '/'),
+			$episodeCandidate->getTvShow()->getName(),
+			str_pad($episodeCandidate->getSeasonNumber(), 2, 0, STR_PAD_LEFT)
 		);
+
+		// Add torrent through base64 so the torrent file doesn't have to exist on the Transmission server.
+		$torrent = $this->httpClient->request('GET', $episodeCandidate->getDownloadLink())->getContent();
+		$this->transmission->add(base64_encode($torrent), true, $downloadPath);
 
 		// Store the episode.
 		$episode = (new Episode())
-			->setShow($episodeCandidate->getShow())
+			->setTvShow($episodeCandidate->getTvShow())
 			->setDownloadLink($episodeCandidate->getDownloadLink())
 			->setSeasonNumber($episodeCandidate->getSeasonNumber())
 			->setEpisodeNumber($episodeCandidate->getEpisodeNumber())
 			->setQuality($episodeCandidate->getQuality());
 
 		$this->episodeRepository->save($episode);
-	}
-
-	/**
-	 * Downloads a torrent to a path.
-	 * @param string $path
-	 * @param string $torrent
-	 */
-	private function downloadTorrentToPath(string $torrent, string $path): void {
-		// Download external torrent to a temporary location.
-		if (strpos($torrent, 'http') === 0) {
-			$torrent = $this->filesystem->tempnam(sys_get_temp_dir(), 'argos_', '.torrent');
-			$this->filesystem->dumpFile(
-				$torrent,
-				$this->httpClient->request('GET', $torrent)->getContent()
-			);
-		}
-
-		$this->transmission->add($torrent, $path);
-	}
-
-	/**
-	 * Generates path to download episode to.
-	 * @param EpisodeInterface $episode
-	 * @return string
-	 */
-	private function generatePath(EpisodeInterface $episode): string {
-		return sprintf(
-			'%s/tv-shows/Season %s/',
-			$this->downloadPath,
-			str_pad($episode->getSeasonNumber(), 2, 0, STR_PAD_LEFT)
-		);
 	}
 }

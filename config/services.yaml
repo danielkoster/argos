@@ -33,13 +33,22 @@ services:
         arguments:
             $feedUrl: '%env(FEED_URL)%'
 
-    App\EventSubscriber\DownloadNotificationSubscriber:
-        tags:
-            - { name: 'doctrine.event_subscriber' }
+    App\EventSubscriber\DownloadEpisodeCandidateSubscriber:
+        tags: ['doctrine.event_subscriber']
+
+    App\EventSubscriber\FeedItemToEpisodeCandidateSubscriber:
+        tags: ['doctrine.event_subscriber']
+
+    App\EventSubscriber\SendDownloadNotificationSubscriber:
+        tags: ['doctrine.event_subscriber']
 
     App\MessageHandler\DownloadEpisodeMessageHandler:
         arguments:
             $preferredUploaders: '%env(csv:PREFERRED_UPLOADERS)%'
+
+    App\Service\DownloadService:
+        arguments:
+            $downloadPath: '%env(DOWNLOAD_PATH)%'
 
     Transmission\Transmission:
         arguments:

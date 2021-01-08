@@ -2,8 +2,8 @@
 
 namespace App\Client;
 
-use App\Entity\EpisodeCandidate;
-use App\Factory\EpisodeCandidateFactory;
+use App\Entity\FeedItem;
+use App\Factory\FeedItemFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -25,9 +25,9 @@ class IpTorrentsClient {
 
 	/**
 	 * Factory to create episodes.
-	 * @var EpisodeCandidateFactory
+	 * @var FeedItemFactory
 	 */
-	private EpisodeCandidateFactory $episodeCandidateFactory;
+	private FeedItemFactory $feedItemFactory;
 
 	/**
 	 * PSR compliant logger.
@@ -39,40 +39,52 @@ class IpTorrentsClient {
 	 * Create an IPTorrents client.
 	 * @param HttpClientInterface $client
 	 * @param string $feedUrl
-	 * @param EpisodeCandidateFactory $episodeCandidateFactory
+	 * @param FeedItemFactory $feedItemFactory
 	 * @param LoggerInterface $logger
 	 */
 	public function __construct(
 		HttpClientInterface $client,
 		string $feedUrl,
-		EpisodeCandidateFactory $episodeCandidateFactory,
+		FeedItemFactory $feedItemFactory,
 		LoggerInterface $logger
 	) {
 		$this->client = $client;
 		$this->feedUrl = $feedUrl;
-		$this->episodeCandidateFactory = $episodeCandidateFactory;
+		$this->feedItemFactory = $feedItemFactory;
 		$this->logger = $logger;
 	}
 
 	/**
-	 * Get a list of torrents from the feed.
-	 * @return EpisodeCandidate[]
+	 * Get the feed items.
+	 * @return FeedItem[]
 	 */
-	public function getEpisodes(): array {
+	public function getFeedItems(): array {
+		return array_map(
+			fn ($entry): FeedItem => $this->feedItemFactory->create((array) $entry),
+			$this->getRawFeed()
+		);
+	}
+
+	/**
+	 * Get the raw items from the feed.
+	 * @return string[]
+	 */
+	private function getRawFeed(): array {
 		try {
 			$body = $this->client->request('GET', $this->feedUrl)->getContent();
 		} catch (\Throwable $exception) {
 			$this->logger->error('RSS feed could not be parsed', ['exception' => $exception]);
+
+			return [];
 		}
 
 		$feedItems = (new \SimpleXMLElement($body))->xpath('channel/item');
 		if (empty($feedItems)) {
 			$this->logger->error('No episodes found in RSS feed, please check URL');
+
+			return [];
 		}
 
-		return array_filter(array_map(
-			fn ($entry): ?EpisodeCandidate => $this->episodeCandidateFactory->create((array) $entry),
-			$feedItems
-		));
+		return $feedItems;
 	}
 }

@@ -27,7 +27,7 @@ class EpisodeCandidateRepository extends AbstractRepository {
 	 */
 	public function findSimilar(EpisodeInterface $episode): array {
 		return $this->findBy([
-			'show' => $episode->getShow(),
+			'tvShow' => $episode->getTvShow(),
 			'seasonNumber' => $episode->getSeasonNumber(),
 			'episodeNumber' => $episode->getEpisodeNumber(),
 		]);

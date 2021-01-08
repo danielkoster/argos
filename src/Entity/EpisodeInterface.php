@@ -7,10 +7,10 @@ namespace App\Entity;
  */
 interface EpisodeInterface {
 	/**
-	 * Get the {@see Show} this episode belongs to.
-	 * @return Show
+	 * Get the {@see TvShow} this episode belongs to.
+	 * @return TvShow
 	 */
-	public function getShow(): Show;
+	public function getTvShow(): TvShow;
 
 	/**
 	 * Get the URL to download this episode.

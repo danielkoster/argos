@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Base episodeCandidateRepository.
+ * Base repository.
  */
 abstract class AbstractRepository extends ServiceEntityRepository {
 	/**
@@ -20,7 +20,7 @@ abstract class AbstractRepository extends ServiceEntityRepository {
 	private ValidatorInterface $validator;
 
 	/**
-	 * Creates a new episodeCandidateRepository.
+	 * Creates a new repository.
 	 * @param ManagerRegistry $registry The registry.
 	 * @param ValidatorInterface $validator Symfony's validator.
 	 */
@@ -31,7 +31,7 @@ abstract class AbstractRepository extends ServiceEntityRepository {
 	}
 
 	/**
-	 * Returns the entity class this episodeCandidateRepository manages.
+	 * Returns the entity class this repository manages.
 	 * @return string The class.
 	 */
 	abstract protected static function getEntityClass(): string;
@@ -68,13 +68,13 @@ abstract class AbstractRepository extends ServiceEntityRepository {
 	}
 
 	/**
-	 * Validates an entity by checking if this episodeCandidateRepository can manage it.
+	 * Validates an entity by checking if this repository can manage it.
 	 * @param object $entity The entity.
 	 */
 	protected function validateEntityType(object $entity): void {
 		if (get_class($entity) !== static::getEntityClass()) {
 			throw new \InvalidArgumentException(sprintf(
-				'This episodeCandidateRepository only manages entities of type "%s" (provided "%s" ).',
+				'This repository only manages entities of type "%s" (provided "%s" ).',
 				static::getEntityClass(),
 				get_class($entity)
 			));

@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\ShowRepository;
+use App\Repository\TvShowRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,14 +11,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Representation of a TV show.
+ * Representation of a TV tvShow.
  * @ApiResource(
  *     normalizationContext={"groups"={"user:read"}},
  *     denormalizationContext={"groups"={"user:write"}},
  * )
  * @ORM\Entity(repositoryClass=ShowRepository::class)
  */
-class Show {
+class TvShow {
 	/**
 	 * The ID.
 	 * @Groups({"user:read"})
@@ -73,20 +73,20 @@ class Show {
 	private int $highQualityWaitingTime;
 
 	/**
-	 * Episodes belonging to this show.
-	 * @ORM\OneToMany(targetEntity=Episode::class, mappedBy="show", orphanRemoval=true)
+	 * Episodes belonging to this tvShow.
+	 * @ORM\OneToMany(targetEntity=Episode::class, mappedBy="tvShow", orphanRemoval=true)
 	 * @Groups({"user:read"})
 	 */
 	private Collection $episodes;
 
 	/**
-	 * Episode candidates belonging to this show.
-	 * @ORM\OneToMany(targetEntity=EpisodeCandidate::class, mappedBy="show", orphanRemoval=true)
+	 * Episode candidates belonging to this tvShow.
+	 * @ORM\OneToMany(targetEntity=EpisodeCandidate::class, mappedBy="tvShow", orphanRemoval=true)
 	 */
 	private Collection $episodeCandidates;
 
 	/**
-	 * Create a show.
+	 * Create a tvShow.
 	 */
 	public function __construct() {
 		$this->episodes = new ArrayCollection();
@@ -197,7 +197,7 @@ class Show {
 	}
 
 	/**
-	 * Get a list of episodes beloning to this show.
+	 * Get a list of episodes beloning to this tvShow.
 	 * @return Collection|Episode[]
 	 */
 	public function getEpisodes(): Collection {
@@ -205,7 +205,7 @@ class Show {
 	}
 
 	/**
-	 * Remove an episode from this show.
+	 * Remove an episode from this tvShow.
 	 * @param Episode $episode
 	 * @return $this
 	 */
@@ -216,7 +216,7 @@ class Show {
 	}
 
 	/**
-	 * Get a list of episodes beloning to this show.
+	 * Get a list of episodes beloning to this tvShow.
 	 * @return Collection|EpisodeCandidate[]
 	 */
 	public function getEpisodeCandidates(): Collection {
@@ -224,7 +224,7 @@ class Show {
 	}
 
 	/**
-	 * Remove an episode candidate from this show.
+	 * Remove an episode candidate from this tvShow.
 	 * @param EpisodeCandidate $episodeCandidate
 	 * @return $this
 	 */

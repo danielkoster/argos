@@ -4,15 +4,15 @@ namespace App\EventSubscriber;
 
 use App\Entity\Episode;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Component\Notifier\Notification\Notification;
 use Symfony\Component\Notifier\NotifierInterface;
 
 /**
  * Sends notifications about downloaded episodes.
  */
-class DownloadNotificationSubscriber implements EventSubscriber {
+class SendDownloadNotificationSubscriber implements EventSubscriber {
 	/**
 	 * Symfony's notifier.
 	 * @var NotifierInterface
@@ -41,7 +41,7 @@ class DownloadNotificationSubscriber implements EventSubscriber {
 	 * @param LifecycleEventArgs $args The arguments.
 	 */
 	public function postPersist(LifecycleEventArgs $args): void {
-		$episode = $args->getEntity();
+		$episode = $args->getObject();
 		if (!$episode instanceof Episode) {
 			return;
 		}

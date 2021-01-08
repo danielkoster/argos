@@ -20,12 +20,12 @@ class EpisodeCandidate implements EpisodeInterface {
 	private int $id;
 
 	/**
-	 * The {@see TvShow} this episode belongs to.
+	 * The {@see Show} this episode belongs to.
 	 * @Assert\NotBlank
-	 * @ORM\ManyToOne(targetEntity=TvShow::class, inversedBy="episodeCandidates")
+	 * @ORM\ManyToOne(targetEntity=Show::class, inversedBy="episodeCandidates")
 	 * @ORM\JoinColumn(nullable=false)
 	 */
-	private TvShow $tvShow;
+	private Show $show;
 
 	/**
 	 * The URL to download this episode.
@@ -79,7 +79,7 @@ class EpisodeCandidate implements EpisodeInterface {
 	public function __toString(): string {
 		return sprintf(
 			'%s - S%d - E%d - Q%d',
-			$this->getTvShow()->getName(),
+			$this->getShow()->getName(),
 			$this->getSeasonNumber(),
 			$this->getEpisodeNumber(),
 			$this->getQuality()
@@ -97,17 +97,17 @@ class EpisodeCandidate implements EpisodeInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function getTvShow(): TvShow {
-		return $this->tvShow;
+	public function getShow(): Show {
+		return $this->show;
 	}
 
 	/**
-	 * Set the {@see TvShow} this episode belongs to.
-	 * @param TvShow|null $tvShow
+	 * Set the {@see Show} this episode belongs to.
+	 * @param Show|null $show
 	 * @return $this
 	 */
-	public function setTvShow(TvShow $tvShow): self {
-		$this->tvShow = $tvShow;
+	public function setShow(Show $show): self {
+		$this->show = $show;
 
 		return $this;
 	}

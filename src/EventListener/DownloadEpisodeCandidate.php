@@ -39,7 +39,7 @@ class DownloadEpisodeCandidate {
 		// Dispatch message to download the episode.
 		$this->bus->dispatch(
 			new DownloadEpisodeMessage($episodeCandidate),
-			[new DelayStamp($episodeCandidate->getTvShow()->getHighQualityWaitingTime() * 60 * 1000)]
+			[new DelayStamp($episodeCandidate->getShow()->getHighQualityWaitingTime() * 60 * 1000)]
 		);
 	}
 }

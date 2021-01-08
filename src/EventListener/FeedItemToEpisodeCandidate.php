@@ -82,22 +82,22 @@ class FeedItemToEpisodeCandidate {
 	 * @return bool
 	 */
 	private function isRelevant(EpisodeCandidate $episode): bool {
-		$tvShow = $episode->getTvShow();
+		$show = $episode->getShow();
 
 		// Filter if the quality is too low.
-		if ($episode->getQuality() < $tvShow->getMinimumQuality()) {
+		if ($episode->getQuality() < $show->getMinimumQuality()) {
 			return false;
 		}
 
 		// Filter if the episode is from a too old season.
-		if ($episode->getSeasonNumber() < $tvShow->getFollowFromSeason()) {
+		if ($episode->getSeasonNumber() < $show->getFollowFromSeason()) {
 			return false;
 		}
 
 		// Filter if the episode if from the correct season, but too old.
 		if (
-			$episode->getSeasonNumber() === $tvShow->getFollowFromSeason()
-			&& $episode->getEpisodeNumber() < $tvShow->getFollowFromEpisode()
+			$episode->getSeasonNumber() === $show->getFollowFromSeason()
+			&& $episode->getEpisodeNumber() < $show->getFollowFromEpisode()
 		) {
 			return false;
 		}

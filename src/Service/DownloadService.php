@@ -74,7 +74,7 @@ class DownloadService {
 		$downloadPath = sprintf(
 			'%s/tv-shows/%s/Season %s/',
 			rtrim($this->downloadPath, '/'),
-			$episodeCandidate->getTvShow()->getName(),
+			$episodeCandidate->getShow()->getName(),
 			str_pad($episodeCandidate->getSeasonNumber(), 2, 0, STR_PAD_LEFT)
 		);
 
@@ -84,7 +84,7 @@ class DownloadService {
 
 		// Store the episode.
 		$episode = (new Episode())
-			->setTvShow($episodeCandidate->getTvShow())
+			->setShow($episodeCandidate->getShow())
 			->setDownloadLink($episodeCandidate->getDownloadLink())
 			->setSeasonNumber($episodeCandidate->getSeasonNumber())
 			->setEpisodeNumber($episodeCandidate->getEpisodeNumber())

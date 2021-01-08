@@ -4,17 +4,17 @@ namespace App\Factory;
 
 use App\Entity\EpisodeCandidate;
 use App\Entity\FeedItem;
-use App\Repository\TvShowRepository;
+use App\Repository\ShowRepository;
 
 /**
  * Factory to create {@see EpisodeCandidate}.
  */
 class EpisodeCandidateFactory {
 	/**
-	 * The tvShow episodeCandidateRepository.
-	 * @var TvShowRepository
+	 * The show episodeCandidateRepository.
+	 * @var ShowRepository
 	 */
-	private TvShowRepository $tvShowRepository;
+	private ShowRepository $showRepository;
 
 	/**
 	 * The episode candidate being created.
@@ -24,10 +24,10 @@ class EpisodeCandidateFactory {
 
 	/**
 	 * Create a factory to create {@see EpisodeCandidate}.
-	 * @param TvShowRepository $tvShowRepository
+	 * @param ShowRepository $showRepository
 	 */
-	public function __construct(TvShowRepository $tvShowRepository) {
-		$this->tvShowRepository = $tvShowRepository;
+	public function __construct(ShowRepository $showRepository) {
+		$this->showRepository = $showRepository;
 	}
 
 	/**
@@ -38,7 +38,7 @@ class EpisodeCandidateFactory {
 	public function createFromFeedItem(FeedItem $feedItem): ?EpisodeCandidate {
 		try {
 			$this->episodeCandidate = new EpisodeCandidate();
-			$this->setTvShow($feedItem->getTitle());
+			$this->setShow($feedItem->getTitle());
 			$this->episodeCandidate->setDownloadLink($feedItem->getLink());
 			$this->setSeasonData($feedItem->getTitle());
 			$this->setQuality($feedItem->getTitle());
@@ -54,14 +54,14 @@ class EpisodeCandidateFactory {
 	 * @param string $title
 	 * @throws \InvalidArgumentException
 	 */
-	private function setTvShow(string $title): void {
-		foreach ($this->tvShowRepository->findAll() as $tvShow) {
-			// Replace non-word characters and check if the title of the tvShow occurs in the title of the provided data.
-			$title_show = preg_replace('/\W/', '', $tvShow->getName());
+	private function setShow(string $title): void {
+		foreach ($this->showRepository->findAll() as $show) {
+			// Replace non-word characters and check if the title of the show occurs in the title of the provided data.
+			$title_show = preg_replace('/\W/', '', $show->getName());
 			$title_data = preg_replace('/\W/', '', $title);
 
 			if (stripos($title_data, $title_show) === 0) {
-				$this->episodeCandidate->setTvShow($tvShow);
+				$this->episodeCandidate->setShow($show);
 
 				return;
 			}

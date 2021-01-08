@@ -14,7 +14,7 @@ class EpisodeCandidateFactory {
 	 * The tvShow episodeCandidateRepository.
 	 * @var TvShowRepository
 	 */
-	private TvShowRepository $showRepository;
+	private TvShowRepository $tvShowRepository;
 
 	/**
 	 * The episode candidate being created.
@@ -24,10 +24,10 @@ class EpisodeCandidateFactory {
 
 	/**
 	 * Create a factory to create {@see EpisodeCandidate}.
-	 * @param TvShowRepository $showRepository
+	 * @param TvShowRepository $tvShowRepository
 	 */
-	public function __construct(TvShowRepository $showRepository) {
-		$this->showRepository = $showRepository;
+	public function __construct(TvShowRepository $tvShowRepository) {
+		$this->tvShowRepository = $tvShowRepository;
 	}
 
 	/**
@@ -55,13 +55,13 @@ class EpisodeCandidateFactory {
 	 * @throws \InvalidArgumentException
 	 */
 	private function setTvShow(string $title): void {
-		foreach ($this->showRepository->findAll() as $show) {
+		foreach ($this->tvShowRepository->findAll() as $tvShow) {
 			// Replace non-word characters and check if the title of the tvShow occurs in the title of the provided data.
-			$title_show = preg_replace('/\W/', '', $show->getName());
+			$title_show = preg_replace('/\W/', '', $tvShow->getName());
 			$title_data = preg_replace('/\W/', '', $title);
 
 			if (stripos($title_data, $title_show) === 0) {
-				$this->episodeCandidate->setTvShow($show);
+				$this->episodeCandidate->setTvShow($tvShow);
 
 				return;
 			}

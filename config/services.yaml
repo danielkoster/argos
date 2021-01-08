@@ -33,14 +33,17 @@ services:
         arguments:
             $feedUrl: '%env(FEED_URL)%'
 
-    App\EventSubscriber\DownloadEpisodeCandidateSubscriber:
-        tags: ['doctrine.event_subscriber']
+    App\EventListener\DownloadEpisodeCandidate:
+        tags:
+            - { name: 'doctrine.event_listener', event: 'postPersist' }
 
-    App\EventSubscriber\FeedItemToEpisodeCandidateSubscriber:
-        tags: ['doctrine.event_subscriber']
+    App\EventListener\FeedItemToEpisodeCandidate:
+        tags:
+            - { name: 'doctrine.event_listener', event: 'postPersist' }
 
-    App\EventSubscriber\SendDownloadNotificationSubscriber:
-        tags: ['doctrine.event_subscriber']
+    App\EventListener\SendDownloadNotification:
+        tags:
+            - { name: 'doctrine.event_listener', event: 'postPersist' }
 
     App\MessageHandler\DownloadEpisodeMessageHandler:
         arguments:

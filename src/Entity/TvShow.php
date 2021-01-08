@@ -11,12 +11,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Representation of a TV tvShow.
+ * Representation of a TV show.
  * @ApiResource(
  *     normalizationContext={"groups"={"user:read"}},
  *     denormalizationContext={"groups"={"user:write"}},
  * )
- * @ORM\Entity(repositoryClass=ShowRepository::class)
+ * @ORM\Entity(repositoryClass=TvShowRepository::class)
  */
 class TvShow {
 	/**

@@ -1,18 +1,16 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
 use App\Entity\Episode;
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Component\Notifier\Notification\Notification;
 use Symfony\Component\Notifier\NotifierInterface;
 
 /**
- * Sends notifications about downloaded episodes.
+ * Listener notifications about downloaded episodes.
  */
-class SendDownloadNotificationSubscriber implements EventSubscriber {
+class SendDownloadNotification {
 	/**
 	 * Symfony's notifier.
 	 * @var NotifierInterface
@@ -25,15 +23,6 @@ class SendDownloadNotificationSubscriber implements EventSubscriber {
 	 */
 	public function __construct(NotifierInterface $notifier) {
 		$this->notifier = $notifier;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getSubscribedEvents(): array {
-		return [
-			Events::postPersist,
-		];
 	}
 
 	/**

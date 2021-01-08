@@ -1,21 +1,19 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
 use App\Entity\EpisodeCandidate;
 use App\Entity\FeedItem;
 use App\Factory\EpisodeCandidateFactory;
 use App\Repository\EpisodeCandidateRepository;
 use App\Repository\EpisodeRepository;
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Psr\Log\LoggerInterface;
 
 /**
- * Subscriber which checks if an {@see EpisodeCandidate} needs to be created when a {@see FeedItem} is created.
+ * Listener which checks if an {@see EpisodeCandidate} needs to be created when a {@see FeedItem} is created.
  */
-class FeedItemToEpisodeCandidateSubscriber implements EventSubscriber {
+class FeedItemToEpisodeCandidate {
 	/**
 	 * The episode candidate factory.
 	 * @var EpisodeCandidateFactory
@@ -60,17 +58,7 @@ class FeedItemToEpisodeCandidateSubscriber implements EventSubscriber {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function getSubscribedEvents(): array {
-		return [
-			Events::postPersist,
-		];
-	}
-
-	/**
 	 * Triggered after an entity is persisted the first time.
-	 * @param FeedItem $feedItem
 	 * @param LifecycleEventArgs $args The arguments.
 	 */
 	public function postPersist(LifecycleEventArgs $args): void {

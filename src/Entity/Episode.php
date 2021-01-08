@@ -22,7 +22,7 @@ class Episode implements EpisodeInterface {
 	/**
 	 * The {@see TvShow} this episode belongs to.
 	 * @Assert\NotBlank
-	 * @ORM\ManyToOne(targetEntity=Show::class, inversedBy="episodes")
+	 * @ORM\ManyToOne(targetEntity=TvShow::class, inversedBy="episodes")
 	 * @ORM\JoinColumn(nullable=false)
 	 */
 	private TvShow $tvShow;

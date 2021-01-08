@@ -1,19 +1,17 @@
 <?php
 
-namespace App\EventSubscriber;
+namespace App\EventListener;
 
 use App\Entity\EpisodeCandidate;
 use App\Message\DownloadEpisodeMessage;
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 
 /**
- * Subscriber which dispatches a message to download saved {@see EpisodeCandidate}.
+ * Listener which dispatches a message to download saved {@see EpisodeCandidate}.
  */
-class DownloadEpisodeCandidateSubscriber implements EventSubscriber {
+class DownloadEpisodeCandidate {
 	/**
 	 * Symfony's message bus.
 	 * @var MessageBusInterface
@@ -26,15 +24,6 @@ class DownloadEpisodeCandidateSubscriber implements EventSubscriber {
 	 */
 	public function __construct(MessageBusInterface $bus) {
 		$this->bus = $bus;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getSubscribedEvents(): array {
-		return [
-			Events::postPersist,
-		];
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Client;
+namespace App\Component;
 
 use App\Entity\FeedItem;
 use App\Factory\FeedItemFactory;
@@ -8,20 +8,14 @@ use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * API client for IPTorrents.
+ * Parser for a feed.
  */
-class IpTorrentsClient {
+class FeedParser {
 	/**
 	 * The HTTP client to use for requests.
 	 * @var HttpClientInterface
 	 */
 	private HttpClientInterface $client;
-
-	/**
-	 * The URL of the RSS feed.
-	 * @var string
-	 */
-	private string $feedUrl;
 
 	/**
 	 * Factory to create episodes.
@@ -38,40 +32,39 @@ class IpTorrentsClient {
 	/**
 	 * Create an IPTorrents client.
 	 * @param HttpClientInterface $client
-	 * @param string $feedUrl
 	 * @param FeedItemFactory $feedItemFactory
 	 * @param LoggerInterface $logger
 	 */
 	public function __construct(
 		HttpClientInterface $client,
-		string $feedUrl,
 		FeedItemFactory $feedItemFactory,
 		LoggerInterface $logger
 	) {
 		$this->client = $client;
-		$this->feedUrl = $feedUrl;
 		$this->feedItemFactory = $feedItemFactory;
 		$this->logger = $logger;
 	}
 
 	/**
-	 * Get the feed items.
+	 * Get feed items from a feed.
+	 * @param string $url
 	 * @return FeedItem[]
 	 */
-	public function getFeedItems(): array {
+	public function getFeedItems(string $url): array {
 		return array_map(
-			fn ($entry): FeedItem => $this->feedItemFactory->create((array) $entry),
-			$this->getRawFeed()
+			fn (\SimpleXMLElement $data): FeedItem => $this->feedItemFactory->create((array) $data),
+			$this->getFeedData($url)
 		);
 	}
 
 	/**
-	 * Get the raw items from the feed.
-	 * @return string[]
+	 * Get data from a feed url.
+	 * @param string $url
+	 * @return \SimpleXMLElement[]
 	 */
-	private function getRawFeed(): array {
+	private function getFeedData(string $url): array {
 		try {
-			$body = $this->client->request('GET', $this->feedUrl)->getContent();
+			$body = $this->client->request('GET', $url)->getContent();
 		} catch (\Throwable $exception) {
 			$this->logger->error('RSS feed could not be parsed', ['exception' => $exception]);
 

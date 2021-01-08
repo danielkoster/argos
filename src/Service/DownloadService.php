@@ -70,7 +70,7 @@ class DownloadService {
 	 * @param EpisodeCandidate $episodeCandidate
 	 */
 	public function downloadEpisodeCandidate(EpisodeCandidate $episodeCandidate): void {
-		// Generate a Plex-accepted path to download the torrent to.
+		// Generate a Plex-compliant path to download the torrent to.
 		$downloadPath = sprintf(
 			'%s/tv-shows/%s/Season %s/',
 			rtrim($this->downloadPath, '/'),
@@ -80,7 +80,7 @@ class DownloadService {
 
 		// Add torrent through base64 so the torrent file doesn't have to exist on the Transmission server.
 		$torrent = $this->httpClient->request('GET', $episodeCandidate->getDownloadLink())->getContent();
-		$this->transmission->add(base64_encode($torrent), true, $downloadPath);
+		#$this->transmission->add(base64_encode($torrent), true, $downloadPath);
 
 		// Store the episode.
 		$episode = (new Episode())

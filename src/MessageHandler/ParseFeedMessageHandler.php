@@ -2,7 +2,7 @@
 
 namespace App\MessageHandler;
 
-use App\Client\IpTorrentsClient;
+use App\Component\FeedParser;
 use App\Entity\FeedItem;
 use App\Message\ParseFeedMessage;
 use App\Repository\FeedItemRepository;
@@ -13,10 +13,10 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
  */
 final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	/**
-	 * The IPTorrents client.
-	 * @var IpTorrentsClient
+	 * The feed parser.
+	 * @var FeedParser
 	 */
-	private IpTorrentsClient $client;
+	private FeedParser $feedParser;
 
 	/**
 	 * The feed item repository.
@@ -26,14 +26,14 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 
 	/**
 	 * Create a message handler.
-	 * @param IpTorrentsClient $client
+	 * @param FeedParser $feedParser
 	 * @param FeedItemRepository $feedItemRepository
 	 */
 	public function __construct(
-		IpTorrentsClient $client,
+		FeedParser $feedParser,
 		FeedItemRepository $feedItemRepository
 	) {
-		$this->client = $client;
+		$this->feedParser = $feedParser;
 		$this->feedItemRepository = $feedItemRepository;
 	}
 
@@ -41,9 +41,12 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	 * @inheritDoc
 	 */
 	public function __invoke(ParseFeedMessage $message) {
+		// Get all items from the feed, filter stored items.
 		$feedItems = array_filter(
-			$this->client->getFeedItems(),
-			fn (FeedItem $feedItem): bool => null === $this->feedItemRepository->findOneBy(['checksum' => $feedItem->getChecksum()])
+			$this->feedParser->getFeedItems($message->getFeed()->getUrl()),
+			fn (FeedItem $feedItem): bool => null === $this->feedItemRepository->findOneBy([
+				'checksum' => $feedItem->getChecksum(),
+			])
 		);
 
 		foreach ($feedItems as $feedItem) {

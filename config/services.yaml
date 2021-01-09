@@ -11,6 +11,10 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
+    _instanceof:
+        App\Feed\FeedProcessorInterface:
+            tags: ['app.feed_processor']
+
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
@@ -33,17 +37,25 @@ services:
         tags:
             - { name: 'doctrine.event_listener', event: 'postPersist' }
 
-    App\EventListener\FeedItemToEpisodeCandidate:
-        tags:
-            - { name: 'doctrine.event_listener', event: 'postPersist' }
-
     App\EventListener\SendDownloadNotification:
         tags:
             - { name: 'doctrine.event_listener', event: 'postPersist' }
 
+    App\Feed\DownloadAllFeedProcessor:
+        arguments:
+            $serviceId: 'download_all'
+
+    App\Feed\WantedEpisodeFeedProcessor:
+        arguments:
+            $serviceId: 'wanted_episodes'
+
     App\MessageHandler\DownloadEpisodeMessageHandler:
         arguments:
             $preferredUploaders: '%env(csv:PREFERRED_UPLOADERS)%'
+
+    App\MessageHandler\ParseFeedMessageHandler:
+        arguments:
+            $feedProcessors: !tagged_iterator app.feed_processor
 
     App\Service\DownloadService:
         arguments:

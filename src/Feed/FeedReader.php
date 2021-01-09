@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Component;
+namespace App\Feed;
 
 use App\Entity\FeedItem;
 use App\Factory\FeedItemFactory;
@@ -10,7 +10,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 /**
  * Parser for a feed.
  */
-class FeedParser {
+class FeedReader {
 	/**
 	 * The HTTP client to use for requests.
 	 * @var HttpClientInterface

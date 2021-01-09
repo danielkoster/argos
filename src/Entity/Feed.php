@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\FeedRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Representation of a feed.
@@ -22,15 +23,26 @@ class Feed {
 
 	/**
 	 * The name.
+	 * @Assert\NotBlank
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private string $name;
 
 	/**
 	 * The URL.
+	 * @Assert\NotBlank
+	 * @Assert\Url
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private string $url;
+
+	/**
+	 * The feed processor service ID's.
+	 * @Assert\Choice(choices="{'wanted_episodes', 'download_all'}")
+	 * @Assert\NotBlank
+	 * @ORM\Column(type="array")
+	 */
+	private array $processorServiceIds = [];
 
 	/**
 	 * Get the ID.
@@ -44,7 +56,7 @@ class Feed {
 	 * Get the name.
 	 * @return string
 	 */
-	public function getName(): ?string {
+	public function getName(): string {
 		return $this->name;
 	}
 
@@ -63,7 +75,7 @@ class Feed {
 	 * Get the URL.
 	 * @return string
 	 */
-	public function getUrl(): ?string {
+	public function getUrl(): string {
 		return $this->url;
 	}
 
@@ -74,6 +86,25 @@ class Feed {
 	 */
 	public function setUrl(string $url): self {
 		$this->url = $url;
+
+		return $this;
+	}
+
+	/**
+	 * The feed processor service ID's.
+	 * @return string[]
+	 */
+	public function getProcessorServiceIds(): array {
+		return $this->processorServiceIds;
+	}
+
+	/**
+	 * Set the feed processor service ID's.
+	 * @param string[] $processorServiceIds
+	 * @return $this
+	 */
+	public function setProcessorServiceIds(array $processorServiceIds): self {
+		$this->processorServiceIds = $processorServiceIds;
 
 		return $this;
 	}

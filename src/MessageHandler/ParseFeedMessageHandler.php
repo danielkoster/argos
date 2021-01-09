@@ -2,8 +2,9 @@
 
 namespace App\MessageHandler;
 
-use App\Component\FeedParser;
 use App\Entity\FeedItem;
+use App\Feed\FeedProcessorInterface;
+use App\Feed\FeedReader;
 use App\Message\ParseFeedMessage;
 use App\Repository\FeedItemRepository;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -13,10 +14,10 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
  */
 final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	/**
-	 * The feed parser.
-	 * @var FeedParser
+	 * The feed reader.
+	 * @var FeedReader
 	 */
-	private FeedParser $feedParser;
+	private FeedReader $feedReader;
 
 	/**
 	 * The feed item repository.
@@ -25,16 +26,25 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	private FeedItemRepository $feedItemRepository;
 
 	/**
+	 * All feed processorServiceIds.
+	 * @var FeedProcessorInterface[]
+	 */
+	private array $feedProcessors;
+
+	/**
 	 * Create a message handler.
-	 * @param FeedParser $feedParser
+	 * @param FeedReader $feedReader
 	 * @param FeedItemRepository $feedItemRepository
+	 * @param FeedProcessorInterface[] $feedProcessors
 	 */
 	public function __construct(
-		FeedParser $feedParser,
-		FeedItemRepository $feedItemRepository
+		FeedReader $feedReader,
+		FeedItemRepository $feedItemRepository,
+		array $feedProcessors
 	) {
-		$this->feedParser = $feedParser;
+		$this->feedReader = $feedReader;
 		$this->feedItemRepository = $feedItemRepository;
+		$this->feedProcessors = $feedProcessors;
 	}
 
 	/**
@@ -43,14 +53,30 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	public function __invoke(ParseFeedMessage $message) {
 		// Get all items from the feed, filter stored items.
 		$feedItems = array_filter(
-			$this->feedParser->getFeedItems($message->getFeed()->getUrl()),
+			$this->feedReader->getFeedItems($message->getFeed()->getUrl()),
 			fn (FeedItem $feedItem): bool => null === $this->feedItemRepository->findOneBy([
 				'checksum' => $feedItem->getChecksum(),
 			])
 		);
 
+		if (empty($feedItems)) {
+			return;
+		}
+
+		// Get all relevant processorServiceIds for this feed.
+		$feedProcessors = array_filter(
+			$this->feedProcessors,
+			static fn(FeedProcessorInterface $feedProcessor): bool => in_array(
+				$feedProcessor->getServiceId(),
+				$message->getFeed()->getProcessorServiceIds()
+			)
+		);
+
 		foreach ($feedItems as $feedItem) {
-			$this->feedItemRepository->save($feedItem);
+			foreach ($feedProcessors as $feedProcessor) {
+				$this->feedItemRepository->save($feedItem);
+				$feedProcessor->process($feedItem);
+			}
 		}
 	}
 }

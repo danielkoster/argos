@@ -1,19 +1,18 @@
 <?php
 
-namespace App\EventListener;
+namespace App\Feed;
 
 use App\Entity\EpisodeCandidate;
 use App\Entity\FeedItem;
 use App\Factory\EpisodeCandidateFactory;
 use App\Repository\EpisodeCandidateRepository;
 use App\Repository\EpisodeRepository;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Psr\Log\LoggerInterface;
 
 /**
- * Listener which checks if an {@see EpisodeCandidate} needs to be created when a {@see FeedItem} is created.
+ * Feed processor which downloads wanted episodes.
  */
-class FeedItemToEpisodeCandidate {
+class WantedEpisodeFeedProcessor extends AbstractFeedProcessor {
 	/**
 	 * The episode candidate factory.
 	 * @var EpisodeCandidateFactory
@@ -39,18 +38,21 @@ class FeedItemToEpisodeCandidate {
 	private LoggerInterface $logger;
 
 	/**
-	 * Create an event subscriber.
+	 * @inheritDoc
 	 * @param EpisodeCandidateFactory $episodeCandidateFactory
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
 	 * @param EpisodeRepository $episodeRepository
 	 * @param LoggerInterface $logger
 	 */
 	public function __construct(
+		string $serviceId,
 		EpisodeCandidateFactory $episodeCandidateFactory,
 		EpisodeCandidateRepository $episodeCandidateRepository,
 		EpisodeRepository $episodeRepository,
 		LoggerInterface $logger
 	) {
+		parent::__construct($serviceId);
+
 		$this->episodeCandidateFactory = $episodeCandidateFactory;
 		$this->episodeCandidateRepository = $episodeCandidateRepository;
 		$this->episodeRepository = $episodeRepository;
@@ -58,15 +60,9 @@ class FeedItemToEpisodeCandidate {
 	}
 
 	/**
-	 * Triggered after an entity is persisted the first time.
-	 * @param LifecycleEventArgs $args The arguments.
+	 * @inheritDoc
 	 */
-	public function postPersist(LifecycleEventArgs $args): void {
-		$feedItem = $args->getObject();
-		if (!$feedItem instanceof FeedItem) {
-			return;
-		}
-
+	public function process(FeedItem $feedItem): void {
 		$episodeCandidate = $this->episodeCandidateFactory->createFromFeedItem($feedItem);
 		if (!$episodeCandidate instanceof EpisodeCandidate || false === $this->isRelevant($episodeCandidate)) {
 			return;

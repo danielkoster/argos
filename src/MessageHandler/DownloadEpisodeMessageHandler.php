@@ -2,6 +2,7 @@
 
 namespace App\MessageHandler;
 
+use App\Entity\Episode;
 use App\Entity\EpisodeCandidate;
 use App\Message\DownloadEpisodeMessage;
 use App\Repository\EpisodeCandidateRepository;
@@ -82,7 +83,18 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		$episodes = array_reverse($episodes);
 
 		// Download the first episode.
-		$this->downloadService->downloadEpisodeCandidate(reset($episodes));
+		$episodeCandidate = reset($episodes);
+		$this->downloadService->downloadEpisodeCandidate($episodeCandidate);
+
+		// Store the episode.
+		$episode = (new Episode())
+			->setShow($episodeCandidate->getShow())
+			->setDownloadLink($episodeCandidate->getDownloadLink())
+			->setSeasonNumber($episodeCandidate->getSeasonNumber())
+			->setEpisodeNumber($episodeCandidate->getEpisodeNumber())
+			->setQuality($episodeCandidate->getQuality());
+
+		$this->episodeRepository->save($episode);
 
 		// Delete all episodes.
 		array_walk(

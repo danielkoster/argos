@@ -55,18 +55,6 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	 * @inheritDoc
 	 */
 	public function __invoke(ParseFeedMessage $message) {
-		// Get all items from the feed, filter stored items.
-		$feedItems = array_filter(
-			$this->feedReader->getFeedItems($message->getFeed()->getUrl()),
-			fn (FeedItem $feedItem): bool => null === $this->feedItemRepository->findOneBy([
-				'checksum' => $feedItem->getChecksum(),
-			])
-		);
-
-		if (empty($feedItems)) {
-			return;
-		}
-
 		// Get all relevant processors for this feed.
 		$feedProcessors = array_filter(
 			$this->feedProcessors,
@@ -76,7 +64,12 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 			)
 		);
 
-		foreach ($feedItems as $feedItem) {
+		foreach ($this->feedReader->getFeedItems($message->getFeed()->getUrl()) as $feedItem) {
+			// Skip if the feed item is already stored.
+			if ($this->feedItemRepository->findOneBy(['checksum' => $feedItem->getChecksum()])) {
+				continue;
+			}
+
 			$this->feedItemRepository->save($feedItem);
 
 			foreach ($feedProcessors as $feedProcessor) {

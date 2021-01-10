@@ -43,7 +43,7 @@ class Feed {
 
 	/**
 	 * The feed processor ID's.
-	 * @Assert\Choice(choices="{FeedProcessorInterface::STRATEGY_OPTIONS}")
+	 * @Assert\Choice(choices="{FeedProcessorInterface::STRATEGY_OPTIONS}", multiple=true)
 	 * @Assert\NotBlank
 	 * @ORM\Column(type="array")
 	 */

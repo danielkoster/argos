@@ -41,14 +41,6 @@ services:
         tags:
             - { name: 'doctrine.event_listener', event: 'postPersist' }
 
-    App\Feed\DownloadAllFeedProcessor:
-        arguments:
-            $serviceId: 'download_all'
-
-    App\Feed\WantedEpisodeFeedProcessor:
-        arguments:
-            $serviceId: 'wanted_episodes'
-
     App\MessageHandler\DownloadEpisodeMessageHandler:
         arguments:
             $preferredUploaders: '%env(csv:PREFERRED_UPLOADERS)%'

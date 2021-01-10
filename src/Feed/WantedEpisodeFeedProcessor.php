@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Feed processor which downloads wanted episodes.
  */
-class WantedEpisodeFeedProcessor extends AbstractFeedProcessor {
+class WantedEpisodeFeedProcessor implements FeedProcessorInterface {
 	/**
 	 * The episode candidate factory.
 	 * @var EpisodeCandidateFactory
@@ -38,25 +38,29 @@ class WantedEpisodeFeedProcessor extends AbstractFeedProcessor {
 	private LoggerInterface $logger;
 
 	/**
-	 * @inheritDoc
+	 * Create a feed processor.
 	 * @param EpisodeCandidateFactory $episodeCandidateFactory
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
 	 * @param EpisodeRepository $episodeRepository
 	 * @param LoggerInterface $logger
 	 */
 	public function __construct(
-		string $serviceId,
 		EpisodeCandidateFactory $episodeCandidateFactory,
 		EpisodeCandidateRepository $episodeCandidateRepository,
 		EpisodeRepository $episodeRepository,
 		LoggerInterface $logger
 	) {
-		parent::__construct($serviceId);
-
 		$this->episodeCandidateFactory = $episodeCandidateFactory;
 		$this->episodeCandidateRepository = $episodeCandidateRepository;
 		$this->episodeRepository = $episodeRepository;
 		$this->logger = $logger;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getId(): string {
+		return FeedProcessorInterface::STRATEGY_WANTED_EPISODES;
 	}
 
 	/**

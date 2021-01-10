@@ -75,15 +75,15 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 			return;
 		}
 
-		// Find all similar episodes.
-		$episodes = $this->episodeCandidateRepository->findSimilar($episode);
+		// Find all similar candidates.
+		$episodeCandidates = $this->episodeCandidateRepository->findSimilar($episode);
 
-		// Sort the episodes, best first.
-		usort($episodes, [$this, 'compareEpisodes']);
-		$episodes = array_reverse($episodes);
+		// Sort the candidates, best first.
+		usort($episodeCandidates, [$this, 'compareEpisodes']);
+		$episodeCandidates = array_reverse($episodeCandidates);
 
 		// Download the first episode.
-		$episodeCandidate = reset($episodes);
+		$episodeCandidate = reset($episodeCandidates);
 		$this->downloadService->downloadEpisodeCandidate($episodeCandidate);
 
 		// Store the episode.
@@ -97,10 +97,9 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		$this->episodeRepository->save($episode);
 
 		// Delete all episodes.
-		array_walk(
-			$episodes,
-			fn(EpisodeCandidate $candidate) => $this->episodeCandidateRepository->delete($candidate)
-		);
+		foreach ($episodeCandidates as $episodeCandidate) {
+			$this->episodeCandidateRepository->delete($episodeCandidate);
+		}
 	}
 
 	/**

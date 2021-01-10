@@ -38,11 +38,11 @@ class Feed {
 
 	/**
 	 * The feed processor service ID's.
-	 * @Assert\Choice(choices="{'wanted_episodes', 'download_all'}")
+	 * @Assert\Choice(choices="{FeedProcessorInterface::STRATEGY_OPTIONS}")
 	 * @Assert\NotBlank
 	 * @ORM\Column(type="array")
 	 */
-	private array $processorServiceIds = [];
+	private array $processorIds = [];
 
 	/**
 	 * Get the ID.
@@ -94,17 +94,17 @@ class Feed {
 	 * The feed processor service ID's.
 	 * @return string[]
 	 */
-	public function getProcessorServiceIds(): array {
-		return $this->processorServiceIds;
+	public function getProcessorIds(): array {
+		return $this->processorIds;
 	}
 
 	/**
 	 * Set the feed processor service ID's.
-	 * @param string[] $processorServiceIds
+	 * @param string[] $processorIds
 	 * @return $this
 	 */
-	public function setProcessorServiceIds(array $processorServiceIds): self {
-		$this->processorServiceIds = $processorServiceIds;
+	public function setProcessorIds(array $processorIds): self {
+		$this->processorIds = $processorIds;
 
 		return $this;
 	}

@@ -8,7 +8,7 @@ use App\Service\DownloadService;
 /**
  * Feed processor which downloads all items.
  */
-class DownloadAllFeedProcessor extends AbstractFeedProcessor {
+class DownloadAllFeedProcessor implements FeedProcessorInterface {
 	/**
 	 * The download service.
 	 * @var DownloadService
@@ -16,18 +16,22 @@ class DownloadAllFeedProcessor extends AbstractFeedProcessor {
 	private DownloadService $downloadService;
 
 	/**
-	 * @inheritDoc
+	 * Create a feed processor.
 	 * @param DownloadService $downloadService
 	 */
-	public function __construct(string $serviceId, DownloadService $downloadService) {
-		parent::__construct($serviceId);
-
+	public function __construct(DownloadService $downloadService) {
 		$this->downloadService = $downloadService;
 	}
 
 	/**
 	 * @inheritDoc
-	 * @param FeedItem $feedItem
+	 */
+	public function getId(): string {
+		return FeedProcessorInterface::STRATEGY_DOWNLOAD_ALL;
+	}
+
+	/**
+	 * @inheritDoc
 	 */
 	public function process(FeedItem $feedItem): void {
 		$this->downloadService->download($feedItem->getLink());

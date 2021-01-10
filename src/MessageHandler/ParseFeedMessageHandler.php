@@ -26,7 +26,7 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	private FeedItemRepository $feedItemRepository;
 
 	/**
-	 * All feed processorServiceIds.
+	 * All feed processors.
 	 * @var FeedProcessorInterface[]
 	 */
 	private array $feedProcessors;
@@ -63,12 +63,12 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 			return;
 		}
 
-		// Get all relevant processorServiceIds for this feed.
+		// Get all relevant processors for this feed.
 		$feedProcessors = array_filter(
 			$this->feedProcessors,
 			static fn(FeedProcessorInterface $feedProcessor): bool => in_array(
-				$feedProcessor->getServiceId(),
-				$message->getFeed()->getProcessorServiceIds()
+				$feedProcessor->getId(),
+				$message->getFeed()->getProcessorIds()
 			)
 		);
 

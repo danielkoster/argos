@@ -7,6 +7,7 @@ use App\Feed\FeedProcessorInterface;
 use App\Feed\FeedReader;
 use App\Message\ParseFeedMessage;
 use App\Repository\FeedItemRepository;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 /**
@@ -35,16 +36,19 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 	 * Create a message handler.
 	 * @param FeedReader $feedReader
 	 * @param FeedItemRepository $feedItemRepository
-	 * @param FeedProcessorInterface[] $feedProcessors
+	 * @param ServiceLocator $feedProcessorsLocator
 	 */
 	public function __construct(
 		FeedReader $feedReader,
 		FeedItemRepository $feedItemRepository,
-		array $feedProcessors
+		ServiceLocator $feedProcessorsLocator
 	) {
 		$this->feedReader = $feedReader;
 		$this->feedItemRepository = $feedItemRepository;
-		$this->feedProcessors = $feedProcessors;
+		$this->feedProcessors = array_map(
+			fn(string $id): FeedProcessorInterface => $feedProcessorsLocator->get($id),
+			$feedProcessorsLocator->getProvidedServices()
+		);
 	}
 
 	/**
@@ -73,8 +77,9 @@ final class ParseFeedMessageHandler implements MessageHandlerInterface {
 		);
 
 		foreach ($feedItems as $feedItem) {
+			$this->feedItemRepository->save($feedItem);
+
 			foreach ($feedProcessors as $feedProcessor) {
-				$this->feedItemRepository->save($feedItem);
 				$feedProcessor->process($feedItem);
 			}
 		}

@@ -5,16 +5,21 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\FeedRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Representation of a feed.
- * @ApiResource()
+ * @ApiResource(
+ *     normalizationContext={"groups"={"user:read"}},
+ *     denormalizationContext={"groups"={"user:write"}},
+ * )
  * @ORM\Entity(repositoryClass=FeedRepository::class)
  */
 class Feed {
 	/**
 	 * The ID.
+	 * @Groups({"user:read"})
 	 * @ORM\Id
 	 * @ORM\GeneratedValue
 	 * @ORM\Column(type="integer")
@@ -37,7 +42,7 @@ class Feed {
 	private string $url;
 
 	/**
-	 * The feed processor service ID's.
+	 * The feed processor ID's.
 	 * @Assert\Choice(choices="{FeedProcessorInterface::STRATEGY_OPTIONS}")
 	 * @Assert\NotBlank
 	 * @ORM\Column(type="array")
@@ -91,7 +96,7 @@ class Feed {
 	}
 
 	/**
-	 * The feed processor service ID's.
+	 * The feed processor ID's.
 	 * @return string[]
 	 */
 	public function getProcessorIds(): array {
@@ -99,7 +104,7 @@ class Feed {
 	}
 
 	/**
-	 * Set the feed processor service ID's.
+	 * Set the feed processor ID's.
 	 * @param string[] $processorIds
 	 * @return $this
 	 */

@@ -47,7 +47,7 @@ services:
 
     App\MessageHandler\ParseFeedMessageHandler:
         arguments:
-            $feedProcessors: !tagged_iterator app.feed_processor
+            $feedProcessorsLocator: !tagged_locator app.feed_processor
 
     App\Service\DownloadService:
         arguments:

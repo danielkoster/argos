@@ -33,28 +33,37 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	private DownloadService $downloadService;
 
 	/**
-	 * Names of preferred uploaders.
+	 * Names of favoured uploaders.
 	 * @var string[]
 	 */
-	private array $preferredUploaders;
+	private array $favouredUploaders;
+
+	/**
+	 * Names of unfavoured uploaders.
+	 * @var string[]
+	 */
+	private array $unfavouredUploaders;
 
 	/**
 	 * Create a message handler.
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
 	 * @param EpisodeRepository $episodeRepository
 	 * @param DownloadService $downloadService
-	 * @param string[] $preferredUploaders
+	 * @param string[] $favouredUploaders
+	 * @param string[] $unfavouredUploaders
 	 */
 	public function __construct(
 		EpisodeCandidateRepository $episodeCandidateRepository,
 		EpisodeRepository $episodeRepository,
 		DownloadService $downloadService,
-		array $preferredUploaders
+		array $favouredUploaders,
+		array $unfavouredUploaders
 	) {
 		$this->episodeCandidateRepository = $episodeCandidateRepository;
 		$this->episodeRepository = $episodeRepository;
-		$this->preferredUploaders = $preferredUploaders;
+		$this->favouredUploaders = $favouredUploaders;
 		$this->downloadService = $downloadService;
+		$this->unfavouredUploaders = $unfavouredUploaders;
 	}
 
 	/**
@@ -79,7 +88,11 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		$episodeCandidates = $this->episodeCandidateRepository->findSimilar($episode);
 
 		// Sort the candidates, best first.
-		usort($episodeCandidates, [$this, 'compareEpisodes']);
+		usort(
+			$episodeCandidates,
+			fn(EpisodeCandidate $left, EpisodeCandidate $right): int => $this->compareEpisodes($left, $right)
+		);
+
 		$episodeCandidates = array_reverse($episodeCandidates);
 
 		// Download the first episode.
@@ -114,16 +127,30 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 			return $left->getQuality() <=> $right->getQuality();
 		}
 
-		return $this->hasPreferredUploader($left) <=> $this->hasPreferredUploader($right);
+		$left_favoured = $this->isUploaderInList($left, $this->favouredUploaders);
+		$right_favoured = $this->isUploaderInList($right, $this->favouredUploaders);
+		if ($left_favoured !== $right_favoured) {
+			return $left_favoured <=> $right_favoured;
+		}
+
+		$left_unfavoured = $this->isUploaderInList($left, $this->unfavouredUploaders);
+		$right_unfavoured = $this->isUploaderInList($right, $this->unfavouredUploaders);
+		if ($left_unfavoured !== $right_unfavoured) {
+			// Left and right are reversed to sort unfavoured lower.
+			return $right_unfavoured <=> $left_unfavoured;
+		}
+
+		return 0;
 	}
 
 	/**
-	 * Whether an episode is from a preferred uploader.
+	 * Whether an episode candidate's uploader is in a list of uploaders.
+	 * @param string[] $uploaders
 	 * @param EpisodeCandidate $candidate
 	 * @return bool
 	 */
-	private function hasPreferredUploader(EpisodeCandidate $candidate): bool {
-		foreach ($this->preferredUploaders as $uploader) {
+	private function isUploaderInList(EpisodeCandidate $candidate, array $uploaders): bool {
+		foreach ($uploaders as $uploader) {
 			if (stripos($candidate->getDownloadLink(), $uploader) !== false) {
 				return true;
 			}

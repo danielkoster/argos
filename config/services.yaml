@@ -43,7 +43,8 @@ services:
 
     App\MessageHandler\DownloadEpisodeMessageHandler:
         arguments:
-            $preferredUploaders: '%env(csv:PREFERRED_UPLOADERS)%'
+            $favouredUploaders: '%env(csv:FAVOURED_UPLOADERS)%'
+            $unfavouredUploaders: '%env(csv:UNFAVOURED_UPLOADERS)%'
 
     App\MessageHandler\ParseFeedMessageHandler:
         arguments:

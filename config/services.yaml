@@ -33,6 +33,14 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\Client\TransmissionClient:
+        arguments:
+            $host: '%env(key:host:url:TRANSMISSION_DSN)%'
+            $port: '%env(key:port:url:TRANSMISSION_DSN)%'
+            $path: '%env(key:path:url:TRANSMISSION_DSN)%'
+            $user: '%env(key:user:url:TRANSMISSION_DSN)%'
+            $pass: '%env(key:pass:url:TRANSMISSION_DSN)%'
+
     App\EventListener\DownloadEpisodeCandidate:
         tags:
             - { name: 'doctrine.event_listener', event: 'postPersist' }
@@ -53,9 +61,3 @@ services:
     App\Service\DownloadService:
         arguments:
             $downloadPath: '%env(DOWNLOAD_PATH)%'
-
-    Transmission\Transmission:
-        arguments:
-            $host: '%env(key:host:url:TRANSMISSION_DSN)%'
-            $port: '%env(key:port:url:TRANSMISSION_DSN)%'
-            $path: '%env(key:path:url:TRANSMISSION_DSN)%'

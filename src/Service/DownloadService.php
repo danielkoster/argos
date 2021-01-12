@@ -2,12 +2,10 @@
 
 namespace App\Service;
 
-use App\Entity\Episode;
+use App\Client\TransmissionClient;
 use App\Entity\EpisodeCandidate;
-use App\Repository\EpisodeRepository;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Transmission\Transmission;
 
 /**
  * Service to download items.
@@ -15,9 +13,9 @@ use Transmission\Transmission;
 class DownloadService {
 	/**
 	 * Transmission client.
-	 * @var Transmission
+	 * @var TransmissionClient
 	 */
-	private Transmission $transmission;
+	private TransmissionClient $transmission;
 
 	/**
 	 * Symfony's filesystem.
@@ -39,13 +37,13 @@ class DownloadService {
 
 	/**
 	 * Create a service.
-	 * @param Transmission $transmission
+	 * @param TransmissionClient $transmission
 	 * @param Filesystem $filesystem
 	 * @param HttpClientInterface $httpClient
 	 * @param string $downloadPath
 	 */
 	public function __construct(
-		Transmission $transmission,
+		TransmissionClient $transmission,
 		Filesystem $filesystem,
 		HttpClientInterface $httpClient,
 		string $downloadPath
@@ -62,14 +60,15 @@ class DownloadService {
 	 * @param string $torrent
 	 */
 	public function download(string $torrent, string $downloadPathSuffix = 'misc'): void {
-		// Add torrent through base64 so the torrent file doesn't have to exist on the Transmission server.
-		$torrent = $this->httpClient->request('GET', $torrent);
+		// Download torrent and pass content so the torrent file doesn't have to exist on the client server.
+		$torrent = $this->httpClient->request('GET', $torrent)->getContent();
 		$downloadPath = sprintf(
 			'%s/%s',
 			rtrim($this->downloadPath, '/'),
 			ltrim($downloadPathSuffix, '/'),
 		);
-		$this->transmission->add(base64_encode($torrent), true, $downloadPath);
+
+		$this->transmission->add($torrent, $downloadPath);
 	}
 
 	/**

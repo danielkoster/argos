@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Feed\FeedProcessorInterface;
 use App\Repository\FeedRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -29,6 +30,7 @@ class Feed {
 	/**
 	 * The name.
 	 * @Assert\NotBlank
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private string $name;
@@ -37,14 +39,16 @@ class Feed {
 	 * The URL.
 	 * @Assert\NotBlank
 	 * @Assert\Url
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private string $url;
 
 	/**
 	 * The feed processor ID's.
-	 * @Assert\Choice(choices="{FeedProcessorInterface::STRATEGY_OPTIONS}", multiple=true)
+	 * @Assert\Choice(choices=FeedProcessorInterface::STRATEGY_OPTIONS, multiple=true)
 	 * @Assert\NotBlank
+	 * @Groups({"user:read", "user:write"})
 	 * @ORM\Column(type="array")
 	 */
 	private array $processorIds = [];

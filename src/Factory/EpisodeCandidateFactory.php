@@ -42,6 +42,7 @@ class EpisodeCandidateFactory {
 			$this->episodeCandidate->setDownloadLink($feedItem->getLink());
 			$this->setSeasonData($feedItem->getTitle());
 			$this->setQuality($feedItem->getTitle());
+			$this->setIsProper($feedItem->getTitle());
 
 			return $this->episodeCandidate;
 		} catch (\InvalidArgumentException $exception) {
@@ -104,5 +105,14 @@ class EpisodeCandidateFactory {
 		}
 
 		$this->episodeCandidate->setQuality((int) $matches[1]);
+	}
+
+	/**
+	 * Sets if episode is proper based on the title.
+	 * @param string $title
+	 * @throws \InvalidArgumentException
+	 */
+	private function setIsProper(string $title): void {
+		$this->episodeCandidate->setIsProper((bool) preg_match('/PROPER|REPACK/i', $title));
 	}
 }

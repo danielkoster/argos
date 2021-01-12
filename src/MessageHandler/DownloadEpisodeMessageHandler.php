@@ -122,17 +122,24 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	 * @return int
 	 */
 	private function compareEpisodes(EpisodeCandidate $left, EpisodeCandidate $right): int {
-		// Better quality always comes first.
+		// Proper is better.
+		if ($left->getIsProper() !== $right->getIsProper()) {
+			return $left->getIsProper() <=> $right->getIsProper();
+		}
+
+		// Higher quality is better.
 		if ($left->getQuality() !== $right->getQuality()) {
 			return $left->getQuality() <=> $right->getQuality();
 		}
 
+		// Favoured uploaders are better.
 		$left_favoured = $this->isUploaderInList($left, $this->favouredUploaders);
 		$right_favoured = $this->isUploaderInList($right, $this->favouredUploaders);
 		if ($left_favoured !== $right_favoured) {
 			return $left_favoured <=> $right_favoured;
 		}
 
+		// Unfavoured uploaders are worse.
 		$left_unfavoured = $this->isUploaderInList($left, $this->unfavouredUploaders);
 		$right_unfavoured = $this->isUploaderInList($right, $this->unfavouredUploaders);
 		if ($left_unfavoured !== $right_unfavoured) {

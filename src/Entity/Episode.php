@@ -60,6 +60,13 @@ class Episode implements EpisodeInterface {
 	private int $quality;
 
 	/**
+	 * Whether this episode is proper.
+	 * @Assert\NotBlank
+	 * @ORM\Column(type="boolean")
+	 */
+	private $isProper;
+
+	/**
 	 * Datetime of creation.
 	 * @ORM\Column(type="datetime")
 	 */
@@ -180,6 +187,25 @@ class Episode implements EpisodeInterface {
 	 */
 	public function setQuality(int $quality): self {
 		$this->quality = $quality;
+
+		return $this;
+	}
+
+	/**
+	 * Get whether this episode is proper.
+	 * @return bool
+	 */
+	public function getIsProper(): bool {
+		return $this->isProper;
+	}
+
+	/**
+	 * Set whether this episode is proper.
+	 * @param bool $isProper
+	 * @return $this
+	 */
+	public function setIsProper(bool $isProper): self {
+		$this->isProper = $isProper;
 
 		return $this;
 	}

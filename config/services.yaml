@@ -58,6 +58,10 @@ services:
         arguments:
             $feedProcessorsLocator: !tagged_locator app.feed_processor
 
+    App\Security\TokenAuthenticator:
+        arguments:
+            $apiToken: '%env(API_TOKEN)%'
+
     App\Service\DownloadService:
         arguments:
             $downloadPath: '%env(DOWNLOAD_PATH)%'

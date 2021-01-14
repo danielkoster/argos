@@ -5,6 +5,7 @@ namespace App\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\User;
@@ -23,15 +24,23 @@ class TokenAuthenticator extends AbstractGuardAuthenticator {
 	private string $apiToken;
 
 	/**
+	 * Symfony's rate limiter.
+	 * @var RateLimiterFactory
+	 */
+	private RateLimiterFactory $apiInvalidRequestsLimiter;
+
+	/**
 	 * Create an authenticator.
 	 * @param string $apiToken
+	 * @param RateLimiterFactory $apiInvalidRequestsLimiter
 	 */
-	public function __construct(string $apiToken) {
+	public function __construct(string $apiToken, RateLimiterFactory $apiInvalidRequestsLimiter) {
 		if (empty($apiToken)) {
 			throw new \InvalidArgumentException('API_TOKEN may not be empty');
 		}
 
 		$this->apiToken = $apiToken;
+		$this->apiInvalidRequestsLimiter = $apiInvalidRequestsLimiter;
 	}
 
 	/**
@@ -78,22 +87,25 @@ class TokenAuthenticator extends AbstractGuardAuthenticator {
 	 * @inheritDoc
 	 */
 	public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response {
-		$data = [
-			'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-		];
+		if ($response = $this->consumeRateLimiter($request)) {
+			return $response;
+		}
 
-		return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+		return new JsonResponse(
+			['message' => strtr($exception->getMessageKey(), $exception->getMessageData())],
+			Response::HTTP_UNAUTHORIZED
+		);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function start(Request $request, AuthenticationException $authException = null): Response {
-		$data = [
-			'message' => 'Authentication Required',
-		];
+		if ($response = $this->consumeRateLimiter($request)) {
+			return $response;
+		}
 
-		return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+		return new JsonResponse(['message' => 'Authentication Required'], Response::HTTP_UNAUTHORIZED);
 	}
 
 	/**
@@ -101,5 +113,25 @@ class TokenAuthenticator extends AbstractGuardAuthenticator {
 	 */
 	public function supportsRememberMe(): bool {
 		return false;
+	}
+
+	/**
+	 * Consume the rate limiter, returns a response if hit.
+	 * @param Request $request
+	 * @return Response|null
+	 */
+	private function consumeRateLimiter(Request $request): ?Response {
+		$limiter = $this->apiInvalidRequestsLimiter->create($request->getClientIp());
+		$limit = $limiter->consume();
+
+		if (false === $limit->isAccepted()) {
+			return new Response(
+				null,
+				Response::HTTP_TOO_MANY_REQUESTS,
+				['X-RateLimit-Retry-After' => $limit->getRetryAfter()->getTimestamp()]
+			);
+		}
+
+		return null;
 	}
 }

@@ -1,0 +1,6 @@
+framework:
+    rate_limiter:
+        api_invalid_requests:
+            policy: fixed_window
+            limit: 5
+            interval: '1 minute'

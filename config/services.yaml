@@ -43,11 +43,11 @@ services:
 
     App\EventListener\DownloadEpisodeCandidate:
         tags:
-            - { name: 'doctrine.event_listener', event: 'postPersist' }
+            - { name: doctrine.event_listener, event: postPersist }
 
     App\EventListener\SendDownloadNotification:
         tags:
-            - { name: 'doctrine.event_listener', event: 'postPersist' }
+            - { name: doctrine.event_listener, event: postPersist }
 
     App\MessageHandler\DownloadEpisodeMessageHandler:
         arguments:

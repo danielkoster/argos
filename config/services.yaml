@@ -35,6 +35,7 @@ services:
     # please note that last definitions always *replace* previous ones
     App\Client\TransmissionClient:
         arguments:
+            $scheme: '%env(key:scheme:url:TRANSMISSION_DSN)%'
             $host: '%env(key:host:url:TRANSMISSION_DSN)%'
             $port: '%env(key:port:url:TRANSMISSION_DSN)%'
             $path: '%env(key:path:url:TRANSMISSION_DSN)%'

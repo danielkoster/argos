@@ -1618,16 +1618,16 @@
         },
         {
             "name": "friendsofphp/proxy-manager-lts",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfPHP/proxy-manager-lts.git",
-                "reference": "4a66e4e0d3279d3bb3722963b4294331fabe15bc"
+                "reference": "121af47c9aee9c03031bdeca3fac0540f59aa5c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfPHP/proxy-manager-lts/zipball/4a66e4e0d3279d3bb3722963b4294331fabe15bc",
-                "reference": "4a66e4e0d3279d3bb3722963b4294331fabe15bc",
+                "url": "https://api.github.com/repos/FriendsOfPHP/proxy-manager-lts/zipball/121af47c9aee9c03031bdeca3fac0540f59aa5c3",
+                "reference": "121af47c9aee9c03031bdeca3fac0540f59aa5c3",
                 "shasum": ""
             },
             "require": {
@@ -1684,7 +1684,7 @@
             ],
             "support": {
                 "issues": "https://github.com/FriendsOfPHP/proxy-manager-lts/issues",
-                "source": "https://github.com/FriendsOfPHP/proxy-manager-lts/tree/v1.0.2"
+                "source": "https://github.com/FriendsOfPHP/proxy-manager-lts/tree/v1.0.3"
             },
             "funding": [
                 {
@@ -1696,7 +1696,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-01-04T11:21:26+00:00"
+            "time": "2021-01-14T21:52:44+00:00"
         },
         {
             "name": "kriswallsmith/buzz",
@@ -7456,16 +7456,16 @@
         },
         {
             "name": "transmission-php/transmission-php",
-            "version": "2.1.0",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/transmission-php/transmission-php.git",
-                "reference": "4057cbc5f56956dc6e3a2f76683203d863a8ed40"
+                "reference": "494b80fd110d0b8bdcca9dc25a29bafaf3fad2d9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/transmission-php/transmission-php/zipball/4057cbc5f56956dc6e3a2f76683203d863a8ed40",
-                "reference": "4057cbc5f56956dc6e3a2f76683203d863a8ed40",
+                "url": "https://api.github.com/repos/transmission-php/transmission-php/zipball/494b80fd110d0b8bdcca9dc25a29bafaf3fad2d9",
+                "reference": "494b80fd110d0b8bdcca9dc25a29bafaf3fad2d9",
                 "shasum": ""
             },
             "require": {
@@ -7499,9 +7499,9 @@
             ],
             "support": {
                 "issues": "https://github.com/transmission-php/transmission-php/issues",
-                "source": "https://github.com/transmission-php/transmission-php/tree/2.1.0"
+                "source": "https://github.com/transmission-php/transmission-php/tree/2.2.0"
             },
-            "time": "2020-12-31T17:09:38+00:00"
+            "time": "2021-01-14T21:27:25+00:00"
         },
         {
             "name": "twig/twig",
@@ -7958,16 +7958,16 @@
         },
         {
             "name": "symfony/maker-bundle",
-            "version": "v1.26.1",
+            "version": "1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/maker-bundle.git",
-                "reference": "0f1d3ed2584349dc8700d7908e8a92b3742b1c99"
+                "reference": "a47408fa6e39034a5abe324a46f4e6733266267a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/maker-bundle/zipball/0f1d3ed2584349dc8700d7908e8a92b3742b1c99",
-                "reference": "0f1d3ed2584349dc8700d7908e8a92b3742b1c99",
+                "url": "https://api.github.com/repos/symfony/maker-bundle/zipball/a47408fa6e39034a5abe324a46f4e6733266267a",
+                "reference": "a47408fa6e39034a5abe324a46f4e6733266267a",
                 "shasum": ""
             },
             "require": {
@@ -8026,7 +8026,7 @@
             ],
             "support": {
                 "issues": "https://github.com/symfony/maker-bundle/issues",
-                "source": "https://github.com/symfony/maker-bundle/tree/v1.26.1"
+                "source": "https://github.com/symfony/maker-bundle/tree/1.27.0"
             },
             "funding": [
                 {
@@ -8042,7 +8042,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-12-18T17:08:39+00:00"
+            "time": "2021-01-08T18:14:10+00:00"
         },
         {
             "name": "symfony/phpunit-bridge",

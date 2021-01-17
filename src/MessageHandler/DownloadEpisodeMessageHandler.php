@@ -2,13 +2,17 @@
 
 namespace App\MessageHandler;
 
+use App\Client\CorruptTorrentException;
+use App\Client\TorrentClientException;
 use App\Entity\Episode;
 use App\Entity\EpisodeCandidate;
 use App\Message\DownloadEpisodeMessage;
 use App\Repository\EpisodeCandidateRepository;
 use App\Repository\EpisodeRepository;
 use App\Service\DownloadService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Transmission\Exception\ClientException;
 
 /**
  * Downloads an episode.
@@ -33,6 +37,12 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	private DownloadService $downloadService;
 
 	/**
+	 * PSR logger.
+	 * @var LoggerInterface
+	 */
+	private LoggerInterface $logger;
+
+	/**
 	 * Names of favoured uploaders.
 	 * @var string[]
 	 */
@@ -49,6 +59,7 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	 * @param EpisodeCandidateRepository $episodeCandidateRepository
 	 * @param EpisodeRepository $episodeRepository
 	 * @param DownloadService $downloadService
+	 * @param LoggerInterface $logger
 	 * @param string[] $favouredUploaders
 	 * @param string[] $unfavouredUploaders
 	 */
@@ -56,6 +67,7 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		EpisodeCandidateRepository $episodeCandidateRepository,
 		EpisodeRepository $episodeRepository,
 		DownloadService $downloadService,
+		LoggerInterface $logger,
 		array $favouredUploaders,
 		array $unfavouredUploaders
 	) {
@@ -64,6 +76,7 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		$this->favouredUploaders = $favouredUploaders;
 		$this->downloadService = $downloadService;
 		$this->unfavouredUploaders = $unfavouredUploaders;
+		$this->logger = $logger;
 	}
 
 	/**
@@ -71,21 +84,30 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 	 */
 	public function __invoke(DownloadEpisodeMessage $message) {
 		// The candidate is already deleted.
-		$episode = $this->episodeCandidateRepository->find($message->getEpisodeId());
-		if (null === $episode) {
+		$episodeCandidate = $this->episodeCandidateRepository->find($message->getEpisodeId());
+		if (null === $episodeCandidate) {
+			$this->logger->info(
+				'Episode candidate {id} is already deleted',
+				['id' => $message->getEpisodeId()]
+			);
+
 			return;
 		}
 
 		// The episode has been downloaded already.
-		$downloadedEpisode = $this->episodeRepository->findSimilar($episode);
+		$downloadedEpisode = $this->episodeRepository->findSimilar($episodeCandidate);
 		if (!empty($downloadedEpisode)) {
-			$this->episodeCandidateRepository->delete($episode);
+			$this->episodeCandidateRepository->delete($episodeCandidate);
+			$this->logger->info(
+				'Episode "{episode}" has been downloaded already',
+				['episode' => $episodeCandidate]
+			);
 
 			return;
 		}
 
 		// Find all similar candidates.
-		$episodeCandidates = $this->episodeCandidateRepository->findSimilar($episode);
+		$episodeCandidates = $this->episodeCandidateRepository->findSimilar($episodeCandidate);
 
 		// Sort the candidates, best first.
 		usort(
@@ -95,9 +117,16 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 
 		$episodeCandidates = array_reverse($episodeCandidates);
 
-		// Download the first episode.
-		$episodeCandidate = reset($episodeCandidates);
-		$this->downloadService->downloadEpisodeCandidate($episodeCandidate);
+		// Download the first episode which can be downloaded.
+		$episodeCandidate = $this->downloadFirstPossibleEpisodeCandidate($episodeCandidates);
+		if (null === $episodeCandidate) {
+			$this->logger->info(
+				'No candidate for "{episode}" could be downloaded',
+				['episode' => $episodeCandidate]
+			);
+
+			return;
+		}
 
 		// Store the episode.
 		$episode = (new Episode())
@@ -113,6 +142,31 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 		foreach ($episodeCandidates as $episodeCandidate) {
 			$this->episodeCandidateRepository->delete($episodeCandidate);
 		}
+	}
+
+	/**
+	 * Tries to download an episode candidate, skips corrupt torrents.
+	 * @param EpisodeCandidate[] $episodeCandidates
+	 * @return EpisodeCandidate|null
+	 * @throws TorrentClientException
+	 */
+	private function downloadFirstPossibleEpisodeCandidate(array $episodeCandidates): ?EpisodeCandidate {
+		while (!empty($episodeCandidates)) {
+			$episodeCandidate = array_shift($episodeCandidates);
+
+			try {
+				$this->downloadService->downloadEpisodeCandidate($episodeCandidate);
+
+				return $episodeCandidate;
+			} catch (CorruptTorrentException $exception) {
+				// Delete the corrupted episode candidate and try the next one.
+				$this->episodeCandidateRepository->delete($episodeCandidate);
+
+				continue;
+			}
+		}
+
+		return null;
 	}
 
 	/**

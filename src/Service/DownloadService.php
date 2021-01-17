@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Client\CorruptTorrentException;
+use App\Client\TorrentClientException;
 use App\Client\TransmissionClient;
 use App\Entity\EpisodeCandidate;
 use Symfony\Component\Filesystem\Filesystem;
@@ -56,8 +58,10 @@ class DownloadService {
 
 	/**
 	 * Download a torrent.
-	 * @param ?string $downloadPathSuffix
 	 * @param string $torrent
+	 * @param string $downloadPathSuffix
+	 * @throws CorruptTorrentException
+	 * @throws TorrentClientException
 	 */
 	public function download(string $torrent, string $downloadPathSuffix = 'misc'): void {
 		// Download torrent and pass content so the torrent file doesn't have to exist on the client server.
@@ -74,6 +78,8 @@ class DownloadService {
 	/**
 	 * Download an episode candidate.
 	 * @param EpisodeCandidate $episodeCandidate
+	 * @throws CorruptTorrentException
+	 * @throws TorrentClientException
 	 */
 	public function downloadEpisodeCandidate(EpisodeCandidate $episodeCandidate): void {
 		// Generate a Plex-compliant path to download the torrent to.

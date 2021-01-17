@@ -11,6 +11,7 @@ interface TorrentClientInterface {
 	 * Torrent contents must be provided, not a path.
 	 * @param string $torrent
 	 * @param string $downloadPath
+	 * @throws CorruptTorrentException
 	 * @throws TorrentClientException
 	 */
 	public function add(string $torrent, string $downloadPath): void;

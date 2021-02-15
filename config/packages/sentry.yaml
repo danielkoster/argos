@@ -1,0 +1,19 @@
+sentry:
+    dsn: '%env(SENTRY_DSN)%'
+
+    options:
+        attach_stacktrace: true # Send stack traces with every message, not just exceptions.
+        before_send: '@App\EventListener\SentryBeforeSendListener'
+        in_app_include:
+            - '%kernel.project_dir%/src'
+
+    messenger:
+        enabled: true
+        capture_soft_fails: false
+
+    # Disable the default error listener and let monolog handle errors.
+    register_error_listener: false
+    monolog:
+        error_handler:
+            enabled: true
+            level: error

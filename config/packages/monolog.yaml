@@ -1,0 +1,10 @@
+monolog:
+    handlers:
+        sentry:
+            type: service
+            id: Sentry\Monolog\Handler
+
+services:
+    Monolog\Processor\PsrLogMessageProcessor:
+        tags:
+          - { name: monolog.processor, handler: sentry }

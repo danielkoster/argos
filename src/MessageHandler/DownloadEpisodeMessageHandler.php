@@ -134,7 +134,8 @@ final class DownloadEpisodeMessageHandler implements MessageHandlerInterface {
 			->setDownloadLink($episodeCandidate->getDownloadLink())
 			->setSeasonNumber($episodeCandidate->getSeasonNumber())
 			->setEpisodeNumber($episodeCandidate->getEpisodeNumber())
-			->setQuality($episodeCandidate->getQuality());
+			->setQuality($episodeCandidate->getQuality())
+			->setIsProper($episodeCandidate->getIsProper());
 
 		$this->episodeRepository->save($episode);
 

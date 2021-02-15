@@ -31,7 +31,6 @@ class FeedItem {
 	/**
 	 * The download link.
 	 * @Assert\NotBlank
-	 * @Assert\Url
 	 * @ORM\Column(type="string", length=255)
 	 */
 	private string $link;

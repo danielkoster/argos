@@ -61,10 +61,10 @@ class EpisodeCandidate implements EpisodeInterface {
 
 	/**
 	 * Whether this episode is proper.
-	 * @Assert\NotBlank
+	 * @Assert\Type("bool")
 	 * @ORM\Column(type="boolean")
 	 */
-	private $isProper;
+	private bool $isProper;
 
 	/**
 	 * Datetime of creation.

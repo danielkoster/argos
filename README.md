@@ -1,5 +1,6 @@
 # Argos
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f2ebc941c7cf4816957d2b27a54da9aa)](https://www.codacy.com/gh/danielkoster/argos/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=danielkoster/argos&amp;utm_campaign=Badge_Grade)
+[![Tests](https://github.com/danielkoster/argos/actions/workflows/tests.yml/badge.svg)](https://github.com/danielkoster/argos/actions/workflows/tests.yml)
 
 **NOTE:** This is a work-in-progress and should not be used yet.
 

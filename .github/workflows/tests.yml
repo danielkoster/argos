@@ -3,6 +3,9 @@ on: [push]
 jobs:
     test:
         runs-on: ubuntu-latest
+        env:
+            APP_ENV: "test"
+            DATABASE_URL: "sqlite:///%kernel.project_dir%/var/test.db"
         steps:
             - uses: actions/checkout@v2
             - name: Install dependencies
